@@ -31,7 +31,10 @@ public class User {
         topicToSubscriptionID.clear();
     }
 
-    public  void unsubscribe(String topicName,Integer subscriptionID){
+    String getTopicName(Integer subscriptionID){
+        return subscriptionsIdToTopic.get(subscriptionID);
+    }
+    public  void unsubscribe( Integer subscriptionID){
         String topicName=subscriptionsIdToTopic.get(subscriptionID);
         subscriptionsIdToTopic.remove(subscriptionID);
         topicToSubscriptionID.remove(topicName);

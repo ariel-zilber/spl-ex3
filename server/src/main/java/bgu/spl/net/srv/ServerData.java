@@ -53,7 +53,16 @@ public class ServerData {
 
     public  boolean   unsubscribeUser(Integer connectionId,Integer subscriptionID){
         User user=getUsers().getUserById(connectionId);
-        user.getAllTopicNames()
+        if(user==null){
+            return false;
+        }
+        String topicName=user.getTopicName(subscriptionID);
+        if(topicName==null){
+            return false;
+        }
+        getTopics().getTopic(topicName).removeUser(user);
+        user.unsubscribe(subscriptionID);
+        return true;
     }
 
 
@@ -76,7 +85,5 @@ public class ServerData {
         Users users=ServerData.getInstance().getUsers();
         users.createUser(username,password);
         return  users.loginUser(username,password, connectionId);
-
-
     }
 }

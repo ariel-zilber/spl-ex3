@@ -31,7 +31,7 @@ public class UnsubscribeClientFrame extends Frame {
             return;
         }
 
-        // unsubscribe
+        // unsubscribe user
         if(!ServerData.getInstance().unsubscribeUser(connectionId,Integer.parseInt(headerId))){
             ErrorServerFrame.createFrame(this, Collections.singletonList("Id field must not be null")).process(connectionId, connections,protocol);
             return;
