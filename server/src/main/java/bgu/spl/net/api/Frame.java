@@ -90,4 +90,21 @@ public abstract class Frame {
     public List<String> getBody(){
         return  body;
     }
+
+    @Override
+    public String toString() {
+        StringBuilder stringBuilder=new StringBuilder();
+        stringBuilder.append(command);
+        stringBuilder.append('\n');
+        for(String key:headers.keySet()){
+            stringBuilder.append(key+":"+headers.get(key)+'\n');
+        }
+        stringBuilder.append('\n');
+        for(String row:body){
+            stringBuilder.append(row);
+            stringBuilder.append('\n');
+        }
+        stringBuilder.append('\n');
+        return stringBuilder.toString();
+    }
 }

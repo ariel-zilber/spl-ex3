@@ -6,6 +6,7 @@ import bgu.spl.net.api.serverFrames.ErrorServerFrame;
 import bgu.spl.net.api.serverFrames.MessageServerFrame;
 import bgu.spl.net.srv.Connections;
 import bgu.spl.net.srv.ServerData;
+import bgu.spl.net.srv.User;
 import jdk.internal.net.http.common.Pair;
 
 import java.util.Collections;
@@ -26,25 +27,32 @@ public class SendClientFrame extends Frame {
         String headerDestination = headers.get("destination");
         String topicName;
         if (headerDestination == null) {
-            ErrorServerFrame.createFrame(this, Collections.singletonList("Id field must not be null")).process(connectionId, connections,protocol);
+            ErrorServerFrame.createFrame(this, Collections.singletonList("Id field must not be null")).process(connectionId, connections, protocol);
             return;
         }
         if (!headerDestination.startsWith("/topic/")) {
-            ErrorServerFrame.createFrame(this, Collections.singletonList("Id field must not be null")).process(connectionId, connections,protocol);
+            ErrorServerFrame.createFrame(this, Collections.singletonList("Id field must not be null")).process(connectionId, connections, protocol);
             return;
         }
         topicName = headerDestination.split("/topic/")[1];
 
         // top
-        if(topicName.length()==0){
-            ErrorServerFrame.createFrame(this, Collections.singletonList("Topicname cannot be null")).process(connectionId, connections,protocol);
+        if (topicName.length() == 0) {
+            ErrorServerFrame.createFrame(this, Collections.singletonList("Topicname cannot be null")).process(connectionId, connections, protocol);
             return;
         }
 
         //
-        for(Pair<Integer,Integer> currPair:ServerData.getInstance().getTopics().getTopicIds(topicName)){
-            MessageServerFrame.createFrame(currPair.first.toString(),ServerData.getInstance().nextMessageId().toString(),topicName,getBody()).process(connectionId,connections,protocol);
-        }
+        User currUser = ServerData.getInstance().getUsers().getUserById(connectionId);
+        Integer subscriptionId = currUser.getSubscriptionsId(topicName);
+        MessageServerFrame messageFrame = MessageServerFrame.createFrame(
+                "" + subscriptionId,
+                "" + ServerData.getInstance().nextMessageId(),
+                topicName,
+                this.getBody()
+        );
+        //
+        messageFrame.process(connectionId, connections, protocol);
 
     }
 

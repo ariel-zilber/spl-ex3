@@ -44,7 +44,9 @@ public class User {
         subscriptionsIdToTopic.putIfAbsent(subscriptionID,topicName);
         topicToSubscriptionID.putIfAbsent(topicName,subscriptionID);
     }
-
+    public Integer getSubscriptionsId(String topicName) {
+        return topicToSubscriptionID.get(topicName);
+    }
     public String getUserName() {
         return userName;
     }

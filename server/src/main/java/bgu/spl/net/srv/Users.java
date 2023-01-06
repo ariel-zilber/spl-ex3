@@ -18,7 +18,6 @@ public class Users {
     }
 
 
-
     public void createUser(String username,String password){
         // new user
         if(registeredUsers.get(username)==null){
