@@ -38,7 +38,7 @@ public class SendClientFrame extends Frame {
 
         // top
         if (topicName.length() == 0) {
-            ErrorServerFrame.createFrame(this, Collections.singletonList("Topicname cannot be null")).process(connectionId, connections, protocol);
+            ErrorServerFrame.createFrame(this, Collections.singletonList("Topic name cannot be null")).process(connectionId, connections, protocol);
             return;
         }
 

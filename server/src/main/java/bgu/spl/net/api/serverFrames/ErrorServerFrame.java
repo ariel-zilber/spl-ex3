@@ -3,6 +3,8 @@ package bgu.spl.net.api.serverFrames;
 import bgu.spl.net.api.Frame;
 import bgu.spl.net.api.StompMessagingProtocolImp;
 import bgu.spl.net.srv.Connections;
+import bgu.spl.net.srv.ServerData;
+import bgu.spl.net.srv.User;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,7 +27,10 @@ public class ErrorServerFrame extends Frame {
     public void process(Integer connectionId, Connections<String> connections, StompMessagingProtocolImp protocol) {
         // todo
         System.out.println("ErrorServerFrame connectionId:"+connectionId);
+        connections.send(connectionId,toString());
 
+        ServerData.getInstance().getUsers().logoutUser(connectionId);
+        protocol.terminate();
     }
 
 
