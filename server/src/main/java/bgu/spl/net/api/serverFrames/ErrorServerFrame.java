@@ -49,4 +49,5 @@ public class ErrorServerFrame extends Frame {
         errorBody.addAll(customMessage);
         return new ErrorServerFrame(errorHeaders,errorBody);
     }
+
 }

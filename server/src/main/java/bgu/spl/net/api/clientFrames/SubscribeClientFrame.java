@@ -27,6 +27,8 @@ public class SubscribeClientFrame extends Frame {
         Map<String, String> headers = this.getHeaders();
         String headerId = headers.get("id");
         String topicName = headers.get("destination");
+        System.out.println("[SubscribeClientFrame] 0");
+
         // check whenever there are format errors
         if (headerId == null) {
             ErrorServerFrame.createFrame(this, Collections.singletonList("Id field must not be null")).process(connectionId, connections, protocol);
@@ -47,11 +49,17 @@ public class SubscribeClientFrame extends Frame {
         }
 
 
-        if (ServerData.getInstance().doesTopicExists(topicName)) {
+        if (ServerData.getInstance().getTopics().topicExists(topicName)) {
             if (!ServerData.getInstance().isSubscriptionIdAvailable(topicName, Integer.parseInt(headerId))) {
                 ErrorServerFrame.createFrame(this, Collections.singletonList("Subscription id is not free")).process(connectionId, connections, protocol);
                 return;
             }
+            if (ServerData.getInstance().isUserRegistered(topicName, connectionId)) {
+                ErrorServerFrame.createFrame(this, Collections.singletonList("Client is already registered to this topic")).process(connectionId, connections, protocol);
+                return;
+            }
+
+
         }
 
         // add the topic if not exists

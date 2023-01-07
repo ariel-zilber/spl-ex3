@@ -32,6 +32,10 @@ public class ConnectClientFrame extends Frame {
             ErrorServerFrame.createFrame(this, Collections.singletonList("The only accepted version is 1.2")).process(connectionId, connections, protocol);
             return;
         }
+        if ( headers.get("host")==null) {
+            ErrorServerFrame.createFrame(this, Collections.singletonList("Must contain hostname")).process(connectionId, connections, protocol);
+            return;
+        }
 
         if (!headers.get("host").equals("stomp.cs.bgu.ac.il")) {
             ErrorServerFrame.createFrame(this, Collections.singletonList("The hostname must be stomp.cs.bgu.ac.il")).process(connectionId, connections, protocol);

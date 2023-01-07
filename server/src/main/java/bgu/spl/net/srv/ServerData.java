@@ -110,4 +110,14 @@ public class ServerData {
         }
         return true;
     }
+
+    public boolean isUserRegistered(String topicName, Integer connectionId) {
+        Topic topic = getTopics().getTopic(topicName);
+        for (User user : topic.getSubscribedUsers()) {
+            if (Objects.equals(user.getConnectionId(), connectionId)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

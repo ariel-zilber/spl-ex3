@@ -83,13 +83,170 @@ def init_connection(logger=None,username='admin',password='password',headers={'h
     conn = stomp.Connection10([('127.0.0.1', 7777)])
     conn.set_listener('', logger)
     conn.connect(username, password, wait=True, headers={'host': "stomp.cs.bgu.ac.il"})
+    time.sleep(1)
 
     return conn
 def test1():
     logger=PrintingListener()
     conn =init_connection(username='123',password='1',logger=logger)
-    conn.subscribe(destination="/dest")
-    conn.send(destination="/dest2",id="2",body='xxx')
-    conn.disconnect()
+    conn.subscribe(destination='x',id="78")
+    time.sleep(1)
     for i in range(0,len(logger.get_data())):
         print(i,logger.data[i])
+    assert "on_connecting 127.0.0.1 7777" in logger.data[0]
+    assert "on_send CONNECT {'host': 'stomp.cs.bgu.ac.il', 'accept-version': '1.0', 'login': '123', 'passcode': '********'}" in logger.data[1]
+    assert "on_connected {'version': '1.2'} " in logger.data[2]
+    assert "on_send SUBSCRIBE {'destination': 'x', 'id': '78', 'ack': 'auto'}" in logger.data[3]
+
+############## login related tests
+def test_login_sanity():
+    logger=PrintingListener()
+    conn =init_connection(username='123',password='1',logger=logger)
+    time.sleep(1)
+    assert "on_connecting 127.0.0.1 7777" in logger.data[0]
+    assert "on_send CONNECT {'host': 'stomp.cs.bgu.ac.il', 'accept-version': '1.0', 'login': '123', 'passcode': '********'}" in logger.data[1]
+    assert "on_connected {'version': '1.2'} " in logger.data[2]
+
+def test_login_bad_no_host():
+    logger = PrintingListener()
+    conn = stomp.Connection10([('127.0.0.1', 7777)])
+    conn.set_listener('', logger)
+    time.sleep(1)
+    conn.connect(username='meni',passcode= 'films', wait=True,headers={})
+    time.sleep(1)
+    for i,j in enumerate(logger.data):
+        print(i,j)
+    assert "on_connecting 127.0.0.1 7777" in logger.data[0]
+    assert "on_send CONNECT {'host': 'stomp.cs.bgu.ac.il', 'accept-version': '1.0', 'login': 'meni', 'passcode': '********'}" in \
+           logger.data[1]
+    assert "on_connected {'version': '1.2'} " in logger.data[2]
+
+def test_login_bad_valueof_host():
+    logger = PrintingListener()
+    conn = stomp.Connection10([('127.0.0.1', 7777)])
+    conn.set_listener('', logger)
+    time.sleep(1)
+    conn.connect(username='meni',passcode= 'films', wait=True,headers={'host': "stomp1.cs.bgu.ac.il"})
+    time.sleep(1)
+    for i,j in enumerate(logger.data):
+        print(i,j)
+    assert "on_connecting 127.0.0.1 7777" in logger.data[0]
+    assert "on_send CONNECT {'host': 'stomp.cs.bgu.ac.il', 'accept-version': '1.0', 'login': 'meni', 'passcode': '********'}" in \
+           logger.data[1]
+    assert "on_connected {'version': '1.2'} " in logger.data[2]
+def test_login_bad_valueof_passcode():
+    has_failed=False
+    try:
+        logger = PrintingListener()
+        conn = stomp.Connection10([('127.0.0.1', 7777)])
+        conn.set_listener('', logger)
+        time.sleep(1)
+        conn.connect(username='meni',passcode= '', wait=True,headers={'host': "stomp.cs.bgu.ac.il"})
+        time.sleep(1)
+        for i,j in enumerate(logger.data):
+            print(i,j)
+    except  Exception:
+        has_failed=True
+    assert has_failed
+
+def test_login_bad_valueof_username():
+    has_failed=False
+    try:
+        logger = PrintingListener()
+        conn = stomp.Connection10([('127.0.0.1', 7777)])
+        conn.set_listener('', logger)
+        time.sleep(1)
+        conn.connect(username='',passcode= '123', wait=True,headers={'host': "stomp.cs.bgu.ac.il"})
+        time.sleep(1)
+        for i,j in enumerate(logger.data):
+            print(i,j)
+    except  Exception:
+        has_failed=True
+    assert has_failed
+
+def connect_user_helper():
+    logger=PrintingListener()
+    conn =init_connection(username='123',password='1',logger=logger)
+    conn.disconnect()
+    time.sleep(0.4)
+    for i, j in enumerate(logger.data):
+        print(i, j)
+    assert "on_connecting 127.0.0.1 7777" in logger.data[0]
+    assert "on_send CONNECT {'host': 'stomp.cs.bgu.ac.il', 'accept-version': '1.0', 'login': '123', 'passcode': '********'}" in logger.data[1]
+    assert "on_connected {'version': '1.2'} " in logger.data[2]
+    assert "on_send DISCONNECT" in logger.data[3]
+
+def test_login_multiple_users():
+    print()
+    for i in range(0,10):
+        print("------[",i,"]-----------")
+        connect_user_helper()
+
+def test_login_two_users_same_username():
+    logger=PrintingListener()
+    conn =init_connection(username='meni',password='films',logger=logger)
+    time.sleep(0.4)
+    for i, j in enumerate(logger.data):
+        print(i, j)
+    assert "on_connecting 127.0.0.1 7777" in logger.data[0]
+    assert "on_send CONNECT {'host': 'stomp.cs.bgu.ac.il', 'accept-version': '1.0', 'login': 'meni', 'passcode': '********'}" in logger.data[1]
+    assert "on_connected {'version': '1.2'} " in logger.data[2]
+    should_fail=False
+    try:
+        logger2 = PrintingListener()
+        conn2 = init_connection(username='meni', password='films', logger=logger2)
+        conn2.disconnect()
+        time.sleep(1)
+        for i, j in enumerate(logger2.data):
+            print(i, j)
+    except Exception:
+        should_fail=True
+    conn.disconnect()
+    assert should_fail
+    assert "on_send DISCONNECT" in logger.data[3]
+
+
+
+def test_login_multipletimes_same_user():
+    logger=PrintingListener()
+    conn =init_connection(username='meni',password='films',logger=logger)
+    time.sleep(0.4)
+    for i, j in enumerate(logger.data):
+        print(i, j)
+    assert "on_connecting 127.0.0.1 7777" in logger.data[0]
+    assert "on_send CONNECT {'host': 'stomp.cs.bgu.ac.il', 'accept-version': '1.0', 'login': 'meni', 'passcode': '********'}" in logger.data[1]
+    assert "on_connected {'version': '1.2'} " in logger.data[2]
+    should_fail=False
+    try:
+        conn = init_connection(username='meni', password='films', logger=logger)
+        for i, j in enumerate(logger.data):
+            print(i, j)
+    except Exception:
+        should_fail=True
+    conn.disconnect()
+    assert should_fail
+
+###########
+def test_subscribe_sanity():
+    logger=PrintingListener()
+    conn =init_connection(username='123',password='1',logger=logger)
+    conn.subscribe(destination='x',id="78")
+    time.sleep(1)
+    assert "on_connecting 127.0.0.1 7777" in logger.data[0]
+    assert "on_send CONNECT {'host': 'stomp.cs.bgu.ac.il', 'accept-version': '1.0', 'login': '123', 'passcode': '********'}" in logger.data[1]
+    assert "on_connected {'version': '1.2'} " in logger.data[2]
+    assert "on_send SUBSCRIBE {'destination': 'x', 'id': '78', 'ack': 'auto'}" in logger.data[3]
+
+
+def test_unsubscribe_sanity():
+    logger=PrintingListener()
+    conn =init_connection(username='123',password='1',logger=logger)
+    conn.subscribe(destination='x',id="78")
+    time.sleep(1)
+    conn.unsubscribe(destination='x',id="78")
+    time.sleep(1)
+    assert "on_connecting 127.0.0.1 7777" in logger.data[0]
+    assert "on_send CONNECT {'host': 'stomp.cs.bgu.ac.il', 'accept-version': '1.0', 'login': '123', 'passcode': '********'}" in logger.data[1]
+    assert "on_connected {'version': '1.2'} " in logger.data[2]
+    assert "on_send SUBSCRIBE {'destination': 'x', 'id': '78', 'ack': 'auto'}" in logger.data[3]
+    assert "on_send SUBSCRIBE {'destination': 'x', 'id': '78', 'ack': 'auto'}" in logger.data[4]

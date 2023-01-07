@@ -26,6 +26,8 @@ public class StompMessagingProtocolImp  implements  StompMessagingProtocol<Strin
         if(Frame.validFrame(message)){
             Frame frame=new ClientFrameFactory().getFrame(message);
             frame.process(connectionId,connections,this);
+        }else{
+            System.out.println("Bad formatted message was given!!");
         }
     }
 

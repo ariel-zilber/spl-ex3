@@ -47,7 +47,7 @@ public abstract class Frame {
         }
         int startBody=lines.length;
 
-        for (int i = 1; i < lines.length-1; i++) {
+        for (int i = 1; i < lines.length; i++) {
             if (!lines[i].contains(":") && lines[i].length() > 1) {
                 return false;
             } else if (!lines[i].contains(":") && lines[i].length() <= 1) {
@@ -64,7 +64,6 @@ public abstract class Frame {
                 if (keyValPair[1].length() == 0) {
                     return false;
                 }
-
             }
         };
         for(int i=startBody+1;i<lines.length-1;i++){
@@ -95,7 +94,6 @@ public abstract class Frame {
         System.out.println("[Frame] body length:"+body.size());
         StringBuilder stringBuilder=new StringBuilder();
         stringBuilder.append(command);
-        stringBuilder.append('\n');
         stringBuilder.append('\n');
 
         for(String key:headers.keySet()){
