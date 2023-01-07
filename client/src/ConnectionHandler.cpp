@@ -8,36 +8,44 @@ using std::cerr;
 using std::endl;
 using std::string;
 
-ConnectionHandler::ConnectionHandler(string host, short port) : host_(host), port_(port), io_service_(),
-                                                                socket_(io_service_) {}
-
+ConnectionHandler::ConnectionHandler(): host_(), port_(), io_service_(), socket_(io_service_), mutex(), connected(false) {}
+    
 ConnectionHandler::~ConnectionHandler() {
 	close();
 }
 
-bool ConnectionHandler::connect() {
-	std::cout << "Starting connect to "
-	          << host_ << ":" << port_ << std::endl;
-	try {
+bool ConnectionHandler::connect(std::string host, short port) {
+    host_ = host;
+    port_ = port;
+    std::cout << "Starting connect to " 
+        << host_ << ":" << port_ << std::endl;
+    try {
 		tcp::endpoint endpoint(boost::asio::ip::address::from_string(host_), port_); // the server endpoint
 		boost::system::error_code error;
 		socket_.connect(endpoint, error);
 		if (error)
 			throw boost::system::system_error(error);
-	}
-	catch (std::exception &e) {
-		std::cerr << "Connection failed (Error: " << e.what() << ')' << std::endl;
-		return false;
-	}
-	return true;
+
+    }
+    catch (std::exception& e) {
+        std::cerr << "Connection failed (Error: " << e.what() << ')' << std::endl;
+        return false;
+    }
+    connected = true;
+    return true;
 }
 
+bool ConnectionHandler::isConnected() {
+    return connected;
+}
 bool ConnectionHandler::getBytes(char bytes[], unsigned int bytesToRead) {
 	size_t tmp = 0;
+
 	boost::system::error_code error;
 	try {
 		while (!error && bytesToRead > tmp) {
 			tmp += socket_.read_some(boost::asio::buffer(bytes + tmp, bytesToRead - tmp), error);
+		
 		}
 		if (error)
 			throw boost::system::system_error(error);
@@ -64,16 +72,20 @@ bool ConnectionHandler::sendBytes(const char bytes[], int bytesToWrite) {
 	return true;
 }
 
-bool ConnectionHandler::getLine(std::string &line) {
-	return getFrameAscii(line, '\n');
+bool ConnectionHandler::getLine(std::string& line) {
+	
+    return getFrameAscii(line, '\0');
 }
-
 bool ConnectionHandler::sendLine(std::string &line) {
+    std::cout<<"[DEBUG] ConnectionHandler::sendLine( "<<std::endl;
+	std::lock_guard<std::mutex> lock(mutex);
 	return sendFrameAscii(line, '\n');
 }
 
 
 bool ConnectionHandler::getFrameAscii(std::string &frame, char delimiter) {
+    std::cout<<"[DEBUG] ConnectionHandler::getFrameAscii()"<<std::endl;
+
 	char ch;
 	// Stop when we encounter the null character.
 	// Notice that the null character is not appended to the frame string.
@@ -82,6 +94,9 @@ bool ConnectionHandler::getFrameAscii(std::string &frame, char delimiter) {
 			if (!getBytes(&ch, 1)) {
 				return false;
 			}
+
+    		std::cout<<"[DEBUG] ConnectionHandler::getFrameAscii() ch"<<ch<<std::endl;
+
 			if (ch != '\0')
 				frame.append(1, ch);
 		} while (delimiter != ch);
@@ -89,10 +104,14 @@ bool ConnectionHandler::getFrameAscii(std::string &frame, char delimiter) {
 		std::cerr << "recv failed2 (Error: " << e.what() << ')' << std::endl;
 		return false;
 	}
+    std::cout<<"[DEBUG] ConnectionHandler::getFrameAscii() frame"<<frame<<std::endl;
+
 	return true;
 }
 
 bool ConnectionHandler::sendFrameAscii(const std::string &frame, char delimiter) {
+    std::cout<<"[DEBUG] ConnectionHandler::sendFrameAscii( "<<frame<<",delimiter "<<delimiter<<std::endl;
+
 	bool result = sendBytes(frame.c_str(), frame.length());
 	if (!result) return false;
 	return sendBytes(&delimiter, 1);
