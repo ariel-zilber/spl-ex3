@@ -1,11 +1,12 @@
-package bgu.spl.net.api;
+package bgu.spl.net.api.clientFrames;
 
-import bgu.spl.net.api.clientFrames.*;
+import bgu.spl.net.api.Frame;
 import bgu.spl.net.api.serverFrames.ErrorServerFrame;
 
-public class FrameFactory {
+public class ClientFrameFactory {
+    public ClientFrameFactory(){}
 
-    Frame getFrame(String message){
+   public Frame getFrame(String message){
         String  command=message.substring(0,message.indexOf("\n"));
         switch (command){
             case "CONNECT":

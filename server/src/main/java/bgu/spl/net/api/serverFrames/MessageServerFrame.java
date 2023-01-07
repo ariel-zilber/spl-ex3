@@ -16,7 +16,7 @@ public class MessageServerFrame extends Frame {
     //
     public MessageServerFrame(Map<String, String> headers, List<String> body, String topicName) {
         super("CONNECTED", headers, body);
-        topicName=topicName;
+        this.topicName=topicName;
     }
 
 
@@ -25,7 +25,7 @@ public class MessageServerFrame extends Frame {
         Map<String, String> header = new HashMap<>();
         header.put("subscription", subscription);
         header.put("message-id", messageId);
-        header.put("destination", "/topic/" + topicName);
+        header.put("destination",  topicName);
           return new MessageServerFrame(header, messageBody, topicName);
     }
 

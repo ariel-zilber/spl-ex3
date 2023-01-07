@@ -7,6 +7,7 @@ import java.util.Map;
 public class Topic {
     String name;
 
+
     private LinkedList<User> subscribedUsers;
 
     public Topic(String name) {
@@ -19,5 +20,10 @@ public class Topic {
     public  void removeUser(User user){
         subscribedUsers.remove(user);
     }
+
+    public LinkedList<User> getSubscribedUsers() {
+        return subscribedUsers;
+    }
+
 
 }

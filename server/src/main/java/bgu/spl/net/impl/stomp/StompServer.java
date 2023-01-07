@@ -29,16 +29,18 @@ public class StompServer {
     }
 
     public static void main(String[] args) {
-        // TODO:: ??
-        if(args.length==2){
-            int port=Integer.parseInt(args[0]);
-            String serverType=args[1];
-            if (serverType.equals("tcp")){
-                runThreadPerClient(port);
-            }else if (serverType.equals("reactor")){
-                runReactor(port);
-            }
-        }
+        runThreadPerClient(7777);
+
+//        // TODO:: ??
+//        if(args.length==2){
+//            int port=Integer.parseInt(args[0]);
+//            String serverType=args[1];
+//            if (serverType.equals("tcp")){
+//                runThreadPerClient(port);
+//            }else if (serverType.equals("reactor")){
+//                runReactor(port);
+//            }
+//        }
 
     }
 }

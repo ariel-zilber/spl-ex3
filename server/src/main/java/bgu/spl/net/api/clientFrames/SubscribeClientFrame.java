@@ -25,45 +25,43 @@ public class SubscribeClientFrame extends Frame {
     @Override
     public void process(Integer connectionId, Connections<String> connections, StompMessagingProtocolImp protocol) {
         Map<String, String> headers = this.getHeaders();
-
         String headerId = headers.get("id");
-        String headerDestination = headers.get("destination");
-        String topicName;
+        String topicName = headers.get("destination");
         // check whenever there are format errors
         if (headerId == null) {
-            ErrorServerFrame.createFrame(this, Collections.singletonList("Id field must not be null")).process(connectionId, connections,protocol);
+            ErrorServerFrame.createFrame(this, Collections.singletonList("Id field must not be null")).process(connectionId, connections, protocol);
             return;
         }
+        System.out.println("[SubscribeClientFrame] 1");
         // check whenever there are format errors
-        if (headerDestination == null) {
-            ErrorServerFrame.createFrame(this, Collections.singletonList("Id field must not be null")).process(connectionId, connections,protocol);
+        if (topicName == null) {
+            ErrorServerFrame.createFrame(this, Collections.singletonList("destination field must not be null")).process(connectionId, connections, protocol);
             return;
         }
-        if (!headerDestination.startsWith("/topic/")) {
-            ErrorServerFrame.createFrame(this, Collections.singletonList("Id field must not be null")).process(connectionId, connections,protocol);
-            return;
-        }
-        topicName = headerDestination.split("/topic/")[1];
+        System.out.println("[SubscribeClientFrame] 2");
 
         // top
-        if(topicName.length()==0){
-            ErrorServerFrame.createFrame(this, Collections.singletonList("Topicname cannot be null")).process(connectionId, connections,protocol);
+        if (topicName.length() == 0) {
+            ErrorServerFrame.createFrame(this, Collections.singletonList("Topic name cannot be null")).process(connectionId, connections, protocol);
             return;
         }
 
-        if (!ServerData.getInstance().getTopics().isSubscriptionIdAvailable(topicName, Integer.parseInt(headerId))) {
-            ErrorServerFrame.createFrame(this, Collections.singletonList("Subscription id is not free")).process(connectionId, connections,protocol);
-            return;
+
+        if (ServerData.getInstance().doesTopicExists(topicName)) {
+            if (!ServerData.getInstance().isSubscriptionIdAvailable(topicName, Integer.parseInt(headerId))) {
+                ErrorServerFrame.createFrame(this, Collections.singletonList("Subscription id is not free")).process(connectionId, connections, protocol);
+                return;
+            }
         }
 
         // add the topic if not exists
-        boolean success=ServerData.getInstance().subscribeUser(topicName,connectionId,Integer.parseInt(headerId));
-        if(success){
+        boolean success = ServerData.getInstance().subscribeUser(topicName, connectionId, Integer.parseInt(headerId));
+        if (success) {
             if (headers.containsKey("receipt-id")) {
-                ReceiptServerFrame.createFrame(headers.get("receipt-id")).process(connectionId, connections,protocol);
+                ReceiptServerFrame.createFrame(headers.get("receipt-id")).process(connectionId, connections, protocol);
             }
-        }else{
-            ErrorServerFrame.createFrame(this, Collections.singletonList("User is not connected")).process(connectionId, connections,protocol);
+        } else {
+            ErrorServerFrame.createFrame(this, Collections.singletonList("User is not connected")).process(connectionId, connections, protocol);
 
         }
     }

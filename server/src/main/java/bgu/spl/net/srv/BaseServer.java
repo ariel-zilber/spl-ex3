@@ -17,7 +17,7 @@ public abstract class BaseServer<T> implements Server<T> {
     private ServerSocket sock;
     private int numOfConnections;
     private ServerData serverData;
-    private  Connections<T> connections;
+    private  ConnectionsImpl<T> connections;
     public BaseServer(
             int port,
             Supplier<StompMessagingProtocol<T>> protocolFactory,
@@ -29,7 +29,7 @@ public abstract class BaseServer<T> implements Server<T> {
 		this.sock = null;
         this.serverData = ServerData.getInstance();
         this.numOfConnections = 0;
-        connections=new ConnectionsImpl<>();
+        connections= (ConnectionsImpl<T>) serverData.getConnections();
 
     }
 
@@ -51,6 +51,7 @@ public abstract class BaseServer<T> implements Server<T> {
                         protocolFactory.get(),
                         connections,
                         this.numOfConnections);
+                connections.addConnection(this.numOfConnections, handler);
 
                 execute(handler);
                 this.numOfConnections++;

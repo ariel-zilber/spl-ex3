@@ -23,8 +23,7 @@ public class ReceiptServerFrame  extends Frame {
      */
     @Override
     public void process(Integer connectionId, Connections<String> connections, StompMessagingProtocolImp protocol) {
-        // todo
-        System.out.println("ReceiptServerFrame connectionId:"+connectionId);
+        connections.send(connectionId,toString());
     }
 
 

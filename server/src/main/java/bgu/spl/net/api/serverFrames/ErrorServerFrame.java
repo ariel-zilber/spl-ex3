@@ -7,6 +7,7 @@ import bgu.spl.net.srv.ServerData;
 import bgu.spl.net.srv.User;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -35,14 +36,15 @@ public class ErrorServerFrame extends Frame {
 
 
     public static    ErrorServerFrame createFrame(Frame other,List<String> customMessage){
-        Map<String,String> headers=other.getHeaders();
-        Map<String,String> errorHeaders=other.getHeaders();
+        Map<String,String> errorHeaders=new HashMap<>();
         List<String> errorBody=new ArrayList<>();
-        errorHeaders.put("receipt-id",headers.get("receipt-id"));
-        errorHeaders.put("message",headers.get("malformedFrameReceived"));
+        if(other.getHeaders().get("receipt-id")!=null){
+            errorHeaders.put("receipt-id",other.getHeaders().get("receipt-id"));
+        }
+        errorHeaders.put("message","malformedFrameReceived");
         errorBody.add("The message :");
         errorBody.add("-----");
-        errorBody.addAll(other.getBody());
+        errorBody.add(other.toString());
         errorBody.add("-----");
         errorBody.addAll(customMessage);
         return new ErrorServerFrame(errorHeaders,errorBody);

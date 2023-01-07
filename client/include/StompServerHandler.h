@@ -18,7 +18,7 @@ public:
 	virtual ~StompServerHandler();
 
     // 
-    bool isLoggedIn();
+    bool isLoggedIn
     bool initConnection(std::string host,int port); 
     void stopConnection(); 
     bool processCommandLogin(std::string username,std::string password);

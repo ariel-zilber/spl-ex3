@@ -1,6 +1,6 @@
 package bgu.spl.net.api;
 
-import bgu.spl.net.api.clientFrames.*;
+import bgu.spl.net.api.clientFrames.ClientFrameFactory;
 import bgu.spl.net.srv.Connections;
 
 
@@ -13,15 +13,18 @@ public class StompMessagingProtocolImp  implements  StompMessagingProtocol<Strin
     public void start(int connectionId, Connections<String> connections) {
         this.connectionId = connectionId;
         this.connections = connections;
-        shouldTerminate = false;
+        this.shouldTerminate = false;
     }
 
     @Override
     public void process(String message) {
+        System.out.println("[StompMessagingProtocolImp] [message] ");
+        System.out.println(message);
+        System.out.println("---------------------");
 
         //
         if(Frame.validFrame(message)){
-            Frame frame=new FrameFactory().getFrame(message);
+            Frame frame=new ClientFrameFactory().getFrame(message);
             frame.process(connectionId,connections,this);
         }
     }

@@ -4,6 +4,7 @@ import bgu.spl.net.api.Frame;
 import bgu.spl.net.api.StompMessagingProtocolImp;
 import bgu.spl.net.srv.Connections;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,7 +21,7 @@ public class ConnectedServerFrame extends Frame {
     public static ConnectedServerFrame createFrame(){
         Map<String,String> header=new HashMap<>();
         header.put("version","1.2");
-     return new ConnectedServerFrame(header,null);
+     return new ConnectedServerFrame(header,new ArrayList<>());
     }
 
     /**
@@ -30,6 +31,7 @@ public class ConnectedServerFrame extends Frame {
     @Override
     public void process(Integer connectionId, Connections<String> connections, StompMessagingProtocolImp protocol) {
         // todo
+
         connections.send(connectionId,toString());
 
     }

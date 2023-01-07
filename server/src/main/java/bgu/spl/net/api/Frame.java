@@ -10,9 +10,9 @@ public abstract class Frame {
     private List<String> body;
 
     public Frame(String command, Map<String, String> headers, List<String> body) {
-        command=command;
-        headers=headers;
-        body=body;
+        this.command=command;
+        this.headers=headers;
+        this.body=body;
     }
 
     public Frame(String msg) {
@@ -20,11 +20,13 @@ public abstract class Frame {
 
         //
         command=lines[0];
-
+        System.out.println("[Frame] command: "+command);
         //
-        int startBody=lines.length-1;
+        int startBody=lines.length;
         headers=new HashMap<>();
-        for(int i=1;i<lines.length-1;i++){
+        body=new ArrayList<>();
+
+        for(int i=1;i<lines.length;i++){
             String[] keyValPair=lines[i].split(":");
             if(keyValPair.length!=2){
                 startBody=i;
@@ -32,10 +34,7 @@ public abstract class Frame {
             }
             headers.put(keyValPair[0],keyValPair[1]);
         }
-
-        body=new ArrayList<>();
-        body.addAll(Arrays.asList(lines).subList(startBody + 1, lines.length - 1));
-
+        body.addAll(Arrays.asList(lines).subList(startBody , lines.length ));
     }
 
     public static boolean validFrame(String msg) {
@@ -93,18 +92,20 @@ public abstract class Frame {
 
     @Override
     public String toString() {
+        System.out.println("[Frame] body length:"+body.size());
         StringBuilder stringBuilder=new StringBuilder();
         stringBuilder.append(command);
         stringBuilder.append('\n');
+        stringBuilder.append('\n');
+
         for(String key:headers.keySet()){
             stringBuilder.append(key+":"+headers.get(key)+'\n');
         }
-        stringBuilder.append('\n');
+
         for(String row:body){
-            stringBuilder.append(row);
             stringBuilder.append('\n');
+            stringBuilder.append(row);
         }
-        stringBuilder.append('\n');
         return stringBuilder.toString();
     }
 }
