@@ -42,30 +42,38 @@ void StompServerHandler::run() {
             userData->setLogOutLock(false);
             break;
         }
-        std::cout<<"message:"<<message<<std::endl;
 
         if (message.length() > 0) {
             std::vector<std::string> serverOutputMessage = parseByLine(message);
+
             if (serverOutputMessage[0] == "CONNECTED") {
                 handleConnectedFrame();
             } else if (serverOutputMessage[0] == "RECEIPT") {
                 std::string receiptId = serverOutputMessage[1].substr(serverOutputMessage[1].find(':') + 1);
                 handleReceiptFrame(receiptId);
             } else if (serverOutputMessage[0] == "ERROR") {
-                std::string errorMessage = serverOutputMessage[2].substr(serverOutputMessage[1].find(':') - 1);
-                handleErrorFrame(errorMessage);
+                handleErrorFrame(serverOutputMessage);
             } else if (serverOutputMessage[0] == "MESSAGE") {
-                std::string msgBody = serverOutputMessage[5];
-                std::string topic = serverOutputMessage[3].substr(serverOutputMessage[3].find(':') + 1);
-                std::cout << std::string(topic + ":" + msgBody) << std::endl;
-                handleMessageFrame(topic, msgBody);
+                std::string username=serverOutputMessage[5];
+                std::string gamename = serverOutputMessage[1].substr(serverOutputMessage[1].find(':') + 1);
+                std::string frameBody("");
+                for(int i=5;i<(int) serverOutputMessage.size();i++){
+                    std::cout<<"[Body] "<<serverOutputMessage[i]<<std::endl;
+                    frameBody+=serverOutputMessage[i]+"\n";
+                }
+
+                //
+                if(username!=userData->getUserName()){
+                    handleMessageFrame(username, gamename,frameBody);
+                }
+                
             }
         }
     }
 }
 
-void StompServerHandler::handleMessageFrame(std::string topic, std::string msgBody) {
-    //todo
+void StompServerHandler::handleMessageFrame(std::string username,std::string gamename,const std::string messageBody) {
+    userData->getGameSummary(username)->addEventToGame(gamename,  Event(messageBody));
 } 
 
 
@@ -90,16 +98,26 @@ void StompServerHandler::handleReceiptFrame(std::string receiptId) {
     }
 }
 
-void StompServerHandler::handleErrorFrame(std::string errorMessage) {
+
+
+void StompServerHandler::handleErrorFrame(std::vector<std::string> errorVector) {
     connectionHandler->close();
     userData->logout();
-    std::cout << errorMessage << std::endl;
+
+    // print the error message
+    for(int i=2;i<(int) errorVector.size();i++){
+        if(errorVector.at(i).length()>0){
+            std::cout<<errorVector.at(i)<<std::endl;
+        }
+    }
+
+    //
     userData->setLogOutLock(false);
     userData->setLoginLock(false);
 }
 
 
-std::vector<std::string> StompServerHandler::parseByLine(std::string message) {
+  std::vector<std::string> StompServerHandler::parseByLine(std::string message) {
     std::stringstream ss(message);
     std::string line;
     std::vector<std::string> results;

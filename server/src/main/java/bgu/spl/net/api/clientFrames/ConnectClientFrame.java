@@ -66,8 +66,8 @@ public class ConnectClientFrame extends Frame {
             case USER_EXISTS:
             case NEW_USER:
                 ConnectedServerFrame.createFrame().process(connectionId, connections, protocol);
-                if (headers.containsKey("receipt-id")) {
-                    ReceiptServerFrame.createFrame(headers.get("receipt-id")).process(connectionId, connections, protocol);
+                if (headers.containsKey("receipt")) {
+                    ReceiptServerFrame.createFrame(headers.get("receipt")).process(connectionId, connections, protocol);
                 }
                 break;
             case USER_LOGGED_IN:

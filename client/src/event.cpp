@@ -15,6 +15,7 @@ Event::Event(std::string team_a_name, std::string team_b_name, std::string name,
       time(time), game_updates(game_updates), team_a_updates(team_a_updates),
       team_b_updates(team_b_updates), description(discription)
 {
+
 }
 
 Event::~Event()
@@ -61,12 +62,72 @@ const std::string &Event::get_discription() const
     return this->description;
 }
 
+std::vector<std::string> readLine(std::string line){
+    std::stringstream ss(line);
+    std::vector<std::string> results;
+    while (std::getline(ss, line, '\n')) {
+        results.push_back(line);
+    }
+    return results;
+}
+
+
+int findRowIndex(std::vector<std::string> lines,std::string row){
+        int i=0;
+        for(;i<(int)lines.size();i++){
+            if (lines[i]==row){
+                break;
+            }
+        }
+        return i;
+}
+ 
+std::string getKeyFromPairSring(std::string pairString){
+    return pairString.substr(0,pairString.find(':') );
+}
+std::string getValueFromPairSring(std::string pairString){
+    return pairString.substr(pairString.find(':')+1);
+}
+void updateMap(std::map<std::string, std::string> &myMap,std::vector<std::string> lines,int start,int end)
+{
+     for(int i=start;i<end;i++){
+        std::string key= getKeyFromPairSring(lines[i]);  
+        std::string value= getValueFromPairSring(lines[i]);  
+        std::cout<<"key:"<<key<<" value:"<<value<<std::endl;
+        myMap.insert({key,value});
+    }
+}
+
 Event::Event(const std::string &frame_body) : team_a_name(""), team_b_name(""), name(""), time(0), game_updates(), team_a_updates(), team_b_updates(), description("")
 {
+    std::vector<std::string>results=readLine( frame_body);
+    team_a_name=getValueFromPairSring(results[1]);
+    team_b_name=getValueFromPairSring(results[2]);
+    name=getValueFromPairSring(results[3]);
+    time=stoi(getValueFromPairSring(results[4]));
+    std::cout<<"[Event::Event] time expected:"<<time<<" from: "<<results[4]<<std::endl;
+    // find indices of rows
+    int generalUpdatesContentStart=findRowIndex(results,"general game updates:")+1;
+    int generalUpdatesContentEnd=findRowIndex(results,"team a updates:");
+    int teamAContentEnd=findRowIndex(results,"team b updates:");
+    int teamBContentEnd=findRowIndex(results,"description:");
+    
+    // update appropriate map
+    updateMap(game_updates,results,generalUpdatesContentStart,generalUpdatesContentEnd);
+    updateMap(team_a_updates,results,generalUpdatesContentEnd+1,teamAContentEnd);
+    updateMap(team_b_updates,results,teamAContentEnd+1,teamBContentEnd);
+     
+     // update description field
+    if(teamBContentEnd<(int)results.size()){
+        description=results[teamBContentEnd];
+    }
+    
+
 }
 
 names_and_events parseEventsFile(std::string json_path)
 {
+
     std::ifstream f(json_path);
     json data = json::parse(f);
 

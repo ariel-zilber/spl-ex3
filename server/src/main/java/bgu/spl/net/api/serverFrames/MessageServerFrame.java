@@ -15,7 +15,7 @@ public class MessageServerFrame extends Frame {
 
     //
     public MessageServerFrame(Map<String, String> headers, List<String> body, String topicName) {
-        super("CONNECTED", headers, body);
+        super("MESSAGE", headers, body);
         this.topicName=topicName;
     }
 

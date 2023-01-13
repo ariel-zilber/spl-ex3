@@ -35,16 +35,16 @@ public class ErrorServerFrame extends Frame {
     }
 
 
-    public static    ErrorServerFrame createFrame(Frame other,List<String> customMessage){
+    public static    ErrorServerFrame createFrame(Frame clientFrame,List<String> customMessage){
         Map<String,String> errorHeaders=new HashMap<>();
         List<String> errorBody=new ArrayList<>();
-        if(other.getHeaders().get("receipt-id")!=null){
-            errorHeaders.put("receipt-id",other.getHeaders().get("receipt-id"));
+        if(clientFrame.getHeaders().get("receipt")!=null){
+            errorHeaders.put("receipt-id",clientFrame.getHeaders().get("receipt"));
         }
         errorHeaders.put("message","malformedFrameReceived");
         errorBody.add("The message :");
         errorBody.add("-----");
-        errorBody.add(other.toString());
+        errorBody.add(clientFrame.toString());
         errorBody.add("-----");
         errorBody.addAll(customMessage);
         return new ErrorServerFrame(errorHeaders,errorBody);

@@ -24,8 +24,8 @@ public class DisconnectClientFrame extends Frame {
 
         boolean success = ServerData.getInstance().disconnectUser(connectionId);
         if (success) {
-            if(headers.get("receipt-id")!=null){
-                ReceiptServerFrame.createFrame(headers.get("receipt-id")).process(connectionId, connections, protocol);
+            if(headers.get("receipt")!=null){
+                ReceiptServerFrame.createFrame(headers.get("receipt")).process(connectionId, connections, protocol);
 
             }
         } else {

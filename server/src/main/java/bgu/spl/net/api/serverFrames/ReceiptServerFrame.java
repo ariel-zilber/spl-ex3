@@ -4,6 +4,7 @@ import bgu.spl.net.api.Frame;
 import bgu.spl.net.api.StompMessagingProtocolImp;
 import bgu.spl.net.srv.Connections;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,6 +31,6 @@ public class ReceiptServerFrame  extends Frame {
     public static Frame createFrame(String receiptId){
         Map<String,String> header=new HashMap<>();
         header.put("receipt-Id",receiptId);
-        return new ReceiptServerFrame(header,null);
+        return new ReceiptServerFrame(header,new ArrayList<>());
     }
 }

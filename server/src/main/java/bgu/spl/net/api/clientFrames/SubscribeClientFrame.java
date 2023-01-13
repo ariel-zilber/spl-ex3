@@ -65,8 +65,8 @@ public class SubscribeClientFrame extends Frame {
         // add the topic if not exists
         boolean success = ServerData.getInstance().subscribeUser(topicName, connectionId, Integer.parseInt(headerId));
         if (success) {
-            if (headers.containsKey("receipt-id")) {
-                ReceiptServerFrame.createFrame(headers.get("receipt-id")).process(connectionId, connections, protocol);
+            if (headers.containsKey("receipt")) {
+                ReceiptServerFrame.createFrame(headers.get("receipt")).process(connectionId, connections, protocol);
             }
         } else {
             ErrorServerFrame.createFrame(this, Collections.singletonList("User is not connected")).process(connectionId, connections, protocol);

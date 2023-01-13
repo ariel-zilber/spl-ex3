@@ -4,7 +4,6 @@
 #include <iostream>
 #include <map>
 #include <vector>
-
 class Event
 {
 private:
