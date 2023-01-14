@@ -8,6 +8,7 @@
 #include <sstream>
 using json = nlohmann::json;
 
+
 Event::Event(std::string team_a_name, std::string team_b_name, std::string name, int time,
              std::map<std::string, std::string> game_updates, std::map<std::string, std::string> team_a_updates,
              std::map<std::string, std::string> team_b_updates, std::string discription)
@@ -93,7 +94,6 @@ void updateMap(std::map<std::string, std::string> &myMap,std::vector<std::string
      for(int i=start;i<end;i++){
         std::string key= getKeyFromPairSring(lines[i]);  
         std::string value= getValueFromPairSring(lines[i]);  
-        std::cout<<"key:"<<key<<" value:"<<value<<std::endl;
         myMap.insert({key,value});
     }
 }
@@ -129,7 +129,6 @@ Event::Event(const std::string &frame_body) : team_a_name(""), team_b_name(""), 
     team_b_name=getValueFromPairSring(results[2]);
     name=getValueFromPairSring(results[3]);
     time=stoi(getValueFromPairSring(results[4]));
-    std::cout<<"[Event::Event] time expected:"<<time<<" from: "<<results[4]<<std::endl;
     // find indices of rows
     int generalUpdatesContentStart=findRowIndex(results,"general game updates:")+1;
     int generalUpdatesContentEnd=findRowIndex(results,"team a updates:");

@@ -26,7 +26,6 @@ public class ConnectClientFrame extends Frame {
         Map<String, String> headers = this.getHeaders();
         String login = headers.get("login");
         String passcode = headers.get("passcode");
-       System.out.println("[ConnectClientFrame] login:"+login+" passcode:"+passcode+" accept-version:"+headers.get("accept-version")+" host:"+headers.get("host"));
         // check whenever there are format errors
         // todo
         if (!headers.get("accept-version").equals("1.2")) {
@@ -54,8 +53,6 @@ public class ConnectClientFrame extends Frame {
 
         // attempt login
         LoginCodes loginCodes = ServerData.getInstance().loginUser(login, passcode, connectionId);
-        System.out.println("[ConnectClientFrame] [loginCodes] "+loginCodes);
-
         // respond accordingly
         switch (loginCodes) {
             case CLIENT_LOGGED_IN:

@@ -63,18 +63,14 @@ public class ServerData {
     }
 
     public boolean unsubscribeUser(Integer connectionId, Integer subscriptionID) {
-        System.out.println("[ServerData] 1 connectionId:"+connectionId+" subscriptionID:"+subscriptionID);
-
         User user = getUsers().getUserById(connectionId);
         if (user == null) {
             return false;
         }
-        System.out.println("[ServerData] 1 connectionId:"+connectionId+" subscriptionID:"+subscriptionID);
         String topicName = user.getTopicName(subscriptionID);
         if (topicName == null) {
             return false;
         }
-        System.out.println("[ServerData] 1 connectionId:"+connectionId+" subscriptionID:"+subscriptionID);
         getTopics().getTopic(topicName).removeUser(user);
         user.unsubscribe(subscriptionID);
         return true;
@@ -83,16 +79,12 @@ public class ServerData {
 
     public boolean subscribeUser(String topicName, Integer connectionId, Integer subscriptionID) {
         // get the user associated with the connection
-        System.out.println("[ServerData] [subscribeUser] topicName:"+topicName+" connectionId:"+connectionId+" subscriptionID:"+subscriptionID);
-
         User user = getUsers().getUserById(connectionId);
 
         // case atempting to subscribe a non connected user
         if (user == null) {
             return false;
         }
-        System.out.println("[ServerData] [subscribeUser] topicName:"+topicName+" connectionId:"+connectionId+" subscriptionID:"+subscriptionID);
-
         // create topic if not exists
         topics.addTopic(topicName);
         user.subscribe(topicName, subscriptionID);

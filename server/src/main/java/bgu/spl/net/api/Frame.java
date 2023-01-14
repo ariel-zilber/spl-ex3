@@ -20,8 +20,6 @@ public abstract class Frame {
 
         //
         command=lines[0];
-        System.out.println("[Frame] command: "+command);
-        //
         int startBody=lines.length;
         headers=new HashMap<>();
         body=new ArrayList<>();
@@ -37,8 +35,6 @@ public abstract class Frame {
 
 
         for(int i=startBody+1;i<lines.length;i++){
-            System.out.println("[Frame] [body] "+lines[i]);
-
             if(lines[i].length()<=1){
                 break;
             }
@@ -47,7 +43,6 @@ public abstract class Frame {
     }
 
     public static boolean validFrame(String msg) {
-        System.out.println("[validFrame] "+msg);
         String[] lines = msg.split("\\r?\\n");
         if (lines.length < 2) {
             return false;
@@ -58,9 +53,6 @@ public abstract class Frame {
         int startBody=lines.length;
 
         for (int i = 1; i < lines.length; i++) {
-            System.out.println("[validFrame] [header] "+lines[i]);
-            System.out.println("[validFrame] [header] "+lines[i].length());
-
             if (!lines[i].contains(":") && lines[i].length() > 1) {
                 return false;
             } else if (!lines[i].contains(":") && lines[i].length() <= 1) {
@@ -80,8 +72,6 @@ public abstract class Frame {
             }
         };
         for(int i=startBody+1;i<lines.length-1;i++){
-            System.out.println("[validFrame] [body] "+lines[i]);
-
             if(lines[i].length()==1){
                 return false;
             }
@@ -106,7 +96,6 @@ public abstract class Frame {
 
     @Override
     public String toString() {
-        System.out.println("[Frame] body length:"+body.size());
         StringBuilder stringBuilder=new StringBuilder();
         stringBuilder.append(command);
         stringBuilder.append('\n');

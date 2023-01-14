@@ -27,20 +27,12 @@ public class ConnectionsImpl<T> implements Connections<T> {
      */
     @Override
     public boolean send(int connectionId, T msg) {
-        System.out.println("[Connection] connectionId:"+connectionId);
-        System.out.println("[Connection] msg:------");
-        System.out.println(msg);
-        System.out.println("[Connection] end:------");
         if (msg == null) {
             return false;
         }
-        System.out.println("Connection] 3");
-        System.out.println("Connection] connectionId:"+connectionId);
-
         if (!connectionHandlers.containsKey(connectionId)) {
             return false;
         }
-        System.out.println("Connection] 4");
         connectionHandlers.get(connectionId).send(msg);
         return true;
     }
@@ -51,9 +43,6 @@ public class ConnectionsImpl<T> implements Connections<T> {
      */
     @Override
     public void send(String channel, T msg) {
-        System.out.println("[Connection] channel:"+channel);
-        System.out.println("[Connection] msg:"+msg);
-
         if(msg==null){
             return;
         }

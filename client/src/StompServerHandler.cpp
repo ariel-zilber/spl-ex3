@@ -4,7 +4,7 @@
 #include <vector>
 #include <sstream>
 #include "StompServerHandler.h"
-
+#include "string.h"
 // todo:: change it
 
 StompServerHandler::StompServerHandler(ConnectionHandler &connectionHandler, UserData &userData) : connectionHandler(
@@ -50,7 +50,6 @@ void StompServerHandler::run() {
                 handleConnectedFrame();
             } else if (serverOutputMessage[0] == "RECEIPT") {
                 std::string receiptId = serverOutputMessage[1].substr(serverOutputMessage[1].find(':') + 1);
-                std::cout<<"[handleReceiptFrame] "<<message<<std::endl;
                 handleReceiptFrame(receiptId);
             } else if (serverOutputMessage[0] == "ERROR") {
                 handleErrorFrame(serverOutputMessage);
@@ -58,20 +57,14 @@ void StompServerHandler::run() {
                 std::string username=serverOutputMessage[5].substr(serverOutputMessage[5].find(':') + 2);
                 std::string gamename = serverOutputMessage[1].substr(serverOutputMessage[1].find(':') + 1);
                 std::string frameBody("");
-                for(int i=0;i<(int) serverOutputMessage.size();i++){
-                    std::cout<<"[Body] "<<i<<":"<< serverOutputMessage[i] <<std::endl;
-                }
                 for(int i=5;i<(int) serverOutputMessage.size();i++){
                     frameBody+= serverOutputMessage[i] +"\n";
                 }
-                std::cout<<"username:"<<username<<std::endl;
-                std::cout<<"gamename:"<<gamename<<std::endl;
 
                 //
                 if(username!=userData->getUserName()){
                     handleMessageFrame(username, gamename,frameBody);
                 }
-                
             }
         }
     }
@@ -83,10 +76,9 @@ void StompServerHandler::handleMessageFrame(std::string username,std::string gam
 
 
 void StompServerHandler::handleConnectedFrame() {
+    std::cout << "\tLogin successful"<<std::endl;
     userData->login();
     userData->setLoginLock(false);
-    std::cout << "stomp$ login successful!!!!!\n" << std::endl;
-
 }
 
 void StompServerHandler::handleReceiptFrame(std::string receiptId) {
@@ -96,30 +88,35 @@ void StompServerHandler::handleReceiptFrame(std::string receiptId) {
         userData->logout();
         userData->setLogOutLock(false);
     } else if (userData->getCommandByReceiptId(receiptId) == "SUBSCRIBE") {
-        std::cout<<"Joined channel "<<userData->getTopicByReceiptId(receiptId)<<std::endl;
+        std::cout<<"\tJoined channel "<<userData->getTopicByReceiptId(receiptId)<<std::endl;
     } else { 
        // case UNSUBSCRIBE
         std::string topic = userData->getTopicByReceiptId(receiptId);
+        std::cout<<"\tExited channel "<<topic<<std::endl;
         userData->removeSubscribeFromTopic(topic);
         userData->removeTopicFromReceiptId(receiptId);
-        std::cout<<"Exited channel "<<topic<<std::endl;
     }
 }
 
-
+std::string extractErrorDescriptionFromLines(std::vector<std::string> errorVector){
+    int numOfSeperators=0;
+    std::string output="";
+    for(int i=0;i<(int) errorVector.size();i++){
+        std::string line=errorVector[i];
+        if(numOfSeperators==2){
+            output+=line;  
+        }
+        if(line=="-----"){
+                numOfSeperators+=1;
+        }
+        }
+    return output;
+}
 
 void StompServerHandler::handleErrorFrame(std::vector<std::string> errorVector) {
+    std::cout<<"\t"<<extractErrorDescriptionFromLines(errorVector)<<"\nstomp$ ";
     connectionHandler->close();
     userData->logout();
-
-    // print the error message
-    for(int i=2;i<(int) errorVector.size();i++){
-        if(errorVector.at(i).length()>0){
-            std::cout<<errorVector.at(i)<<std::endl;
-        }
-    }
-
-    //
     userData->setLogOutLock(false);
     userData->setLoginLock(false);
 }
@@ -137,9 +134,9 @@ void StompServerHandler::handleErrorFrame(std::vector<std::string> errorVector) 
 
 void StompServerHandler::sendMessage(std::string msg) {
     if (!connectionHandler->sendLine(msg)) {
+        std::cout << "\tFailed to send message, connection lost" << std::endl;
         connectionHandler->close();
         userData->logout();
         userData->setLogOutLock(false);
-        std::cout << "stomp$ Failed to send message, connection lost" << std::endl;
     }
 }

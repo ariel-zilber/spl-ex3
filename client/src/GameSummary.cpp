@@ -1,7 +1,6 @@
 #include "GameSummary.h"
 
-void GameSummary::saveSummaryToFile(std::string gamename,std::string filename){
-};
+
 
 void GameSummary::addEventToGame(std::string gameName,Event event){
     // 
@@ -51,13 +50,11 @@ std::string statsToString(std::map<std::string,std::string> stats){
 }
 void updateMap(std::map<std::string,std::string> &stats,const std::map<std::string,std::string> &updatedValues  ){
     for(auto pair=updatedValues.begin();pair!=updatedValues.end();pair++){
-        std::cout<<"[updateMap] [key] "<<pair->first<<" [value]"<<pair->second<<std::endl;
         stats[pair->first]=pair->second;
     }
 }
  
 std::string GameSummary::getGeneralStats(std::string gameName){
-    std::cout<<"[GameSummary::getGeneralStats]"<<"[gameName] "<<gameName<<std::endl;
     std::map<std::string,std::string> stats;
     std::vector<Event> events=getEvents(gameName);
     for(auto eventIterator=events.begin();eventIterator!=events.end();eventIterator++){
@@ -66,8 +63,6 @@ std::string GameSummary::getGeneralStats(std::string gameName){
     return statsToString(stats);
 };
 std::string GameSummary::getTeamAStats(std::string gameName){
-    std::cout<<"[GameSummary::getTeamAStats]"<<"[gameName] "<<gameName<<std::endl;
-
     std::map<std::string,std::string> stats;
     std::vector<Event> events=getEvents(gameName);
     for(auto eventIterator=events.begin();eventIterator!=events.end();eventIterator++){
@@ -76,8 +71,6 @@ std::string GameSummary::getTeamAStats(std::string gameName){
     return statsToString(stats);
 };
 std::string GameSummary::getTeamBStats(std::string gameName){
-    std::cout<<"[GameSummary::getTeamBStats]"<<"[gameName] "<<gameName<<std::endl;
-
     std::map<std::string,std::string> stats;
     std::vector<Event> events=getEvents(gameName);
     for(auto eventIterator=events.begin();eventIterator!=events.end();eventIterator++){
@@ -87,8 +80,6 @@ std::string GameSummary::getTeamBStats(std::string gameName){
 };
  
  std::string GameSummary::getEventsReport(std::string gameName){
-    std::cout<<"[GameSummary::getEventsReport]"<<"[gameName] "<<gameName<<std::endl;
-
     std::vector<Event> events=getEvents(gameName);
     std::string output="";
     for(int i=0; i<(int) events.size();i++){

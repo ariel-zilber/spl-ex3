@@ -24,24 +24,17 @@ public class UnsubscribeClientFrame extends Frame {
         Map<String, String> headers = this.getHeaders();
 
         String headerId = headers.get("id");
-        System.out.println("[UnsubscribeClientFrame] headerId: "+headerId);
-
         // check whenever there are format errors
         if (headerId == null) {
             ErrorServerFrame.createFrame(this, Collections.singletonList("Id field must not be null")).process(connectionId, connections,protocol);
             return;
         }
 
-        System.out.println("[UnsubscribeClientFrame] connectionId: "+connectionId);
-
         // unsubscribe user
         if(!ServerData.getInstance().unsubscribeUser(connectionId,Integer.parseInt(headerId))){
             ErrorServerFrame.createFrame(this, Collections.singletonList("Id field must not be null")).process(connectionId, connections,protocol);
             return;
         }
-
-        System.out.println("[UnsubscribeClientFrame] connectionId: "+connectionId);
-
         if (headers.containsKey("receipt")) {
             ReceiptServerFrame.createFrame(headers.get("receipt")).process(connectionId, connections,protocol);
         }

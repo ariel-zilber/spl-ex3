@@ -18,16 +18,10 @@ public class StompMessagingProtocolImp  implements  StompMessagingProtocol<Strin
 
     @Override
     public void process(String message) {
-        System.out.println("[StompMessagingProtocolImp] [message] ");
-        System.out.println(message);
-        System.out.println("---------------------");
-
         if(message.charAt(0)=='\n'){
             message=message.substring(1);
         }
         if(Frame.validFrame(message)){
-            System.out.println("Frame is valid!!!");
-
             Frame frame=new ClientFrameFactory().getFrame(message);
             frame.process(connectionId,connections,this);
         }else{

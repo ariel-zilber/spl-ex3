@@ -9,6 +9,7 @@
 #include <map>
 #include <iostream>
 #include <fstream>
+
 // constructors
 ClientInputHandler::ClientInputHandler(): userData(nullptr),connectionHandler(nullptr),stompServerHandler(nullptr),stompServerHandlerThread(nullptr)   {
     userData = new UserData;
@@ -36,40 +37,46 @@ ClientInputHandler::~ClientInputHandler() {
     if(userData!=nullptr){
         delete this->userData;
         this->userData=nullptr;
-
     }
 
 }
 
-vector<string> ClientInputHandler::tokenize(string lastUserInput) {
-    std::istringstream iss(lastUserInput);
+// methods
+vector<string> ClientInputHandler::tokenize(string input) {
+    std::istringstream iss(input);
     vector<string> results(istream_iterator<string>{iss},
                            istream_iterator<string>());
     return results;
 };
-
-
 void ClientInputHandler::run() {
-    std::cout<< "Welcome to stomp client 1.2"<<std::endl;
-    std::cout<< "\nCommands:"<<std::endl;
-    std::cout<< "\tlogin {host:port} {username} {password}  "<<std::endl;
-    std::cout<< "\tjoin {game_name}                         "<<std::endl;
-    std::cout<< "\texit {game_name}                         "<<std::endl;
-    std::cout<< "\treport {file}                            "<<std::endl;
-    std::cout<< "\tsummary {game_name} {user} {file}        "<<std::endl;
-    std::cout<< "\tlogout                                   "<<std::endl;
     vector<std::string> enteredUserCommand;
     std::string rawUserInput;
-
     bool exit=false;
+    
+    // print welcome message
+    std::cout<< "###########################################################"<<std::endl;
+    std::cout<< "#                    Welcome                              #"<<std::endl;
+    std::cout<< "# --------------------------------------------------------#"<<std::endl;
+    std::cout<< "# This is a stomp client for STOMP protocol v1.2          #"<<std::endl;
+    std::cout<< "# --------------------------------------------------------#"<<std::endl;
+    std::cout<< "# Commands:                                               #"<<std::endl;
+    std::cout<< "#    login {host:port} {username} {password}              #"<<std::endl;
+    std::cout<< "#    join {game_name}                                     #"<<std::endl;
+    std::cout<< "#    exit {game_name}                                     #"<<std::endl;
+    std::cout<< "#    report {file}                                        #"<<std::endl;
+    std::cout<< "#    summary {game_name} {user} {file}                    #"<<std::endl;
+    std::cout<< "#    logout                                               #"<<std::endl;
+    std::cout<< "###########################################################"<<std::endl;
+    std::cout<< "\tEnter your commands:"<<std::endl;
+
+
+    // take input from user
     while(!exit){
     std::cout<<"stomp$ ";
 
         // should run until client has loggedin
         while(!userData->isLoggedIn() && !exit ){
             userData->setLoginLock(true);
-            
-            //  xx
             getline(cin, rawUserInput);
             enteredUserCommand = tokenize(rawUserInput);
             if(enteredUserCommand.size()>0 ){
@@ -78,31 +85,30 @@ void ClientInputHandler::run() {
                     parseLogin(enteredUserCommand);
                     while(userData->isLoginLock()){}
                 }else{
-                    std::cout<<"Could not connect to server.Please try again"<<std::endl;
+                    std::cout<<"\tCould not connect to server.Please try again"<<std::endl;
                 }
             } else if(enteredUserCommand[0]=="logout"){
                 exit=true;
             }
             else{
-                    std::cout<<"stomp$ Please enter login command of the format: login {host:port} {username} {password}  "<<std::endl;
+                std::cout<<"\tPlease enter login command\nstomp$ ";
             }
-        
             }else{
-                    std::cout<<"stomp$ Please enter login command of the format: login {host:port} {username} {password}  "<<std::endl;
+                std::cout<<"\tPlease enter login command\nstomp$ ";
             }
-        
-        
         }
 
-
     while(userData->isLoggedIn()){
+        
+        // print prompt
         std::cout<<"stomp$ ";
 
+        // take user input
         getline(cin, rawUserInput);
         enteredUserCommand = tokenize(rawUserInput);
         if(enteredUserCommand.size()>0){
         if(enteredUserCommand[0]=="login"){
-            std::cout<<"The client is already logged in, log out before trying again"<<std::endl;
+            std::cout<<"\tThe client is already logged in, log out before trying again"<<std::endl;
         }
         else if(enteredUserCommand[0]=="join"){
             parseJoin(enteredUserCommand);
@@ -122,7 +128,7 @@ void ClientInputHandler::run() {
         else if(enteredUserCommand[0]=="join"){
             parseJoin(enteredUserCommand);
         }else{
-            std::cout<<"Please enter a valid command"<<std::endl;
+            std::cout<<"\tPlease enter a valid command"<<std::endl;
         }
         
         while (userData->isLogOutLock()) {}
@@ -131,46 +137,54 @@ void ClientInputHandler::run() {
 
 
     }
-    std::cout<<"Will now exit the program"<<std::endl;
 
-
+    std::cout<<"\tWill now exit the program"<<std::endl;
 }
-
 void ClientInputHandler::sendMessage(string msg) {
     if (!connectionHandler->sendLine(msg)) {
         connectionHandler->close();
         userData->logout();
         userData->setLogOutLock(false);
-        std::cout << "Failed to send message, connection lost" << std::endl;
+        std::cout << "\tFailed to send message, connection lost" << std::endl;
     }
 }
-void ClientInputHandler::parseLogin(vector<std::string> & inputLine){
+void ClientInputHandler::parseLogin(vector<std::string> & args){
+    
     // valid argument count check
-    if(inputLine.size()!=4){
-        std::cout<<"Wrong number of agruments were given!."<<std::endl;
+    if(args.size()!=4){
+        std::cout<<"\tWrong number of agruments were given!."<<std::endl;
         return;
     }
 
-    userData->setUserName(inputLine[2]);
-    userData->setPassword(inputLine[3]);
-    // decode msg
+    // set login creds
+    userData->setUserName(args[2]);
+    userData->setPassword(args[3]);
+
+
+    // build stomp message string
     string output = string("CONNECT") + '\n'
                     + string("accept-version:1.2") + '\n'
                     + string("host:stomp.cs.bgu.ac.il") + '\n'
                     + string("login:") + userData->getUserName() + '\n'
                     + string("passcode:") + userData->getPassword() + '\n'+'\0';
+    
+    // send the message
     sendMessage(output);
 };
-void ClientInputHandler::parseJoin (vector<std::string> & inputLine){
+void ClientInputHandler::parseJoin (vector<std::string> & args){
+
     // valid argument count check
-    if(inputLine.size()!=2){
-        std::cout<<"Wrong number of agruments were given!."<<std::endl;
+    if(args.size()!=2){
+        std::cout<<"\tWrong number of agruments were given!."<<std::endl;
         return;
     }
 
-    string topicName = inputLine[1];
+    // extract input args
+    string topicName = args[1];
+
+    // check input validity
     if(userData->isSubscribed(topicName)){
-        std::cout << "Client is already subscribed to the topic!!" << std::endl;
+        std::cout << "\tClient is already subscribed to the topic!!" << std::endl;
         return;
     }
 
@@ -197,13 +211,13 @@ void ClientInputHandler::parseJoin (vector<std::string> & inputLine){
                     + string("id:") + subscriptionId + '\n'
                     + string("receipt:") + receiptId + '\n' + '\0';
     
-    //
+    // send the message
     sendMessage(output);
 };
 void ClientInputHandler::parseExit (vector<std::string> & inputLine){
  // valid argument count check
     if(inputLine.size()!=2){
-        std::cout<<"Wrong number of agruments were given!."<<std::endl;
+        std::cout<<"\tWrong number of agruments were given!."<<std::endl;
         return;
     }
     std::string topicName = inputLine[1];
@@ -215,11 +229,9 @@ void ClientInputHandler::parseExit (vector<std::string> & inputLine){
     std::string receiptId = std::to_string(userData->nextReciptId());
     
     std::string subscriptionId = userData->getSubscribeIdByTopic(topicName);
-    std::cout<<"subscriptionId:"<<subscriptionId<<std::endl;
+
     //
     userData->addReceiptIdToTopic(receiptId, topicName);
-    
-    //
     userData->addReciptIdToCommand(receiptId, "UNSUBSCRIBE");
 
     //
@@ -230,14 +242,14 @@ void ClientInputHandler::parseExit (vector<std::string> & inputLine){
     //
     sendMessage(output);
     }else{
-        std::cout<<"Not subscribed to the game"<<std::endl;
+        std::cout<<"\tNot subscribed to the game"<<std::endl;
         
     }
 };
 void ClientInputHandler::parseReport (vector<std::string> & inputLine){
      // valid argument count check
     if(inputLine.size()!=2){
-        std::cout<<"Wrong number of agruments were given!."<<std::endl;
+        std::cout<<"\tWrong number of agruments were given!."<<std::endl;
         return;
     }
     std::string file = inputLine[1];
@@ -251,12 +263,10 @@ void ClientInputHandler::parseReport (vector<std::string> & inputLine){
     std::string gameName=teamA+"_"+teamB;
     std::string username=userData->getUserName();
     // // 
-    std::cout<<"[ClientInputHandler::parseReport] game:"<<gameName<<std::endl;
-    std::cout<<"[ClientInputHandler::parseReport] username:"<<username<<std::endl;
 
     //  
     if(!userData->isSubscribedToTopic(gameName)){
-        std::cout<<"Not subscribe to game!!"<<std::endl;
+        std::cout<<"\tNot subscribe to game!!"<<std::endl;
         return;
     }
 
@@ -302,40 +312,38 @@ void ClientInputHandler::parseReport (vector<std::string> & inputLine){
                 }
 
                 //
-                output+="description:\n"+event.get_discription();
+                output+="description:\n";
+                output+=event.get_discription();
                 output+='\n';
                 output+='\0';
-                std::cout<<output<<std::endl;
                 sendMessage(output);
     }    
 
 };
-void ClientInputHandler::parseSummary (vector<std::string> & inputLine){
+void ClientInputHandler::parseSummary (vector<std::string> & args){
      // valid argument count check
-    if(inputLine.size()!=4){
-        std::cout<<"Wrong number of agruments were given!."<<std::endl;
-        return;
-    }
-    // todo
-    std::string gameName = inputLine[1];
-    std::string user = inputLine[2];
-    std::string file = inputLine[3];
-    std::cout<<"[ClientInputHandler::parseSummary]"<<gameName<<std::endl;
-    std::cout<<"[ClientInputHandler::parseSummary]"<<user<<std::endl;
-    std::cout<<"[ClientInputHandler::parseSummary]"<<file<<std::endl;
-    
-    if(!userData->userHasReportedEvents(user)){
-        std::cout<<"User has not reported any game events!!"<<std::endl;
-        return;
-    }
-    if(!userData->getGameSummary(user)->hasSummary(gameName)){
-        std::cout<<"Not subscribed to game!!"<<std::endl;
+    if(args.size()!=4){
+        std::cout<<"\tWrong number of agruments were given!."<<std::endl;
         return;
     }
 
-    //
+    // parse user arguemnts
+    std::string gameName =args[1];
+    std::string user = args[2];
+    std::string file = args[3];
+    
+    // checks of validity
+    if(!userData->userHasReportedEvents(user)){
+        std::cout<<"\tUser has not reported any game events!!"<<std::endl;
+        return;
+    }
+    if(!userData->getGameSummary(user)->hasSummary(gameName)){
+        std::cout<<"\tNot subscribed to game!!"<<std::endl;
+        return;
+    }
+
+    // create string command
     std::string output;
-    std::cout<<"------------[Report]--------------------"<<std::endl;
     GameSummary* userGameSummary=userData->getGameSummary(user);
     std::vector<Event> events=userGameSummary->getEvents(gameName);
     output+=userGameSummary->firstTeam(gameName)+" vs "+userGameSummary->secondTeam( gameName)+"\n";
@@ -348,16 +356,12 @@ void ClientInputHandler::parseSummary (vector<std::string> & inputLine){
     output+=userGameSummary->getTeamBStats(gameName);
     output+="Game event reports:\n";
     output+=userGameSummary->getEventsReport(gameName);
-    std::cout<<"---------------[result]-------------------"<<std::endl;
-    std::cout<<output<<std::endl;
-    std::cout<<"---------------[ file]"<<file<<std::endl;
 
+    // save output to file
     ofstream myfile(file);
     myfile << output;
     myfile.close();
-
 };
-
 void ClientInputHandler::parseLogout(){
     
     // get the receipt Id 
@@ -367,13 +371,13 @@ void ClientInputHandler::parseLogout(){
     //
     std::string output = string("DISCONNECT") + '\n'
                     + string("receipt:") + receiptId + '\n' + '\0';
+    std::cout<<"\tlogged out"<<std::endl;
     
     //
     sendMessage(output);
 };
-
-bool ClientInputHandler::connectToServer (vector<std::string> &inputLine){
-    string hostPortStr = inputLine[1];
+bool ClientInputHandler::connectToServer (vector<std::string> &args){
+    string hostPortStr = args[1];
 
     // given host from client
     string host = hostPortStr.substr(0, hostPortStr.find(':'));

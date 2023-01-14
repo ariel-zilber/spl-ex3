@@ -258,3 +258,25 @@ login 127.0.0.1:7777 meni lovesbibi
 login 127.0.0.1:7777 meni films
 ```
 summary germany_japan meni xxxxxxxxxxx.json
+
+
+
+Main Controls - *FIGlet and AOL Macro Fonts Supported*
+Font:
+Character Width:
+Character Height:
+Type Something
+
+
+Other Stuff From patorjk.com That You Might Like:
+
+    Typing Speed Test
+    Keyboard Layout Analzyer
+    Text Color Fader
+    Snake Game
+    My Photography Site
+    Main Page
+
+patorjk.com
+
+
