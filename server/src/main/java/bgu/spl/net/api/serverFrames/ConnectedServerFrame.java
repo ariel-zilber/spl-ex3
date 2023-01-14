@@ -30,10 +30,7 @@ public class ConnectedServerFrame extends Frame {
      */
     @Override
     public void process(Integer connectionId, Connections<String> connections, StompMessagingProtocolImp protocol) {
-        // todo
-
         connections.send(connectionId,toString());
-
     }
 
 }

@@ -14,30 +14,33 @@ import java.nio.channels.SocketChannel;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.Supplier;
 
-public class Reactor<T> implements Server<T> {
+public class Reactor implements Server<String> {
 
     private final int port;
-    private final Supplier<StompMessagingProtocol<T>> protocolFactory;
-    private final Supplier<MessageEncoderDecoder<T>> readerFactory;
+    private final Supplier<StompMessagingProtocol<String>> protocolFactory;
+    private final Supplier<MessageEncoderDecoder<String>> readerFactory;
     private final ActorThreadPool pool;
     private Selector selector;
 
     private Thread selectorThread;
     private final ConcurrentLinkedQueue<Runnable> selectorTasks = new ConcurrentLinkedQueue<>();
     private  int numOfConnections;
-    private ConnectionsImpl<T> connections;
+    private ServerData serverData;
+
+    private ConnectionsImpl  connections;
     public Reactor(
             int numThreads,
             int port,
-            Supplier<StompMessagingProtocol<T>> protocolFactory,
-            Supplier<MessageEncoderDecoder<T>> readerFactory) {
+            Supplier<StompMessagingProtocol<String>> protocolFactory,
+            Supplier<MessageEncoderDecoder<String>> readerFactory) {
 
         this.pool = new ActorThreadPool(numThreads);
         this.port = port;
         this.protocolFactory = protocolFactory;
         this.readerFactory = readerFactory;
         this.numOfConnections=0;
-        this.connections=new ConnectionsImpl<>();
+        this.serverData = ServerData.getInstance();
+        connections= serverData.getConnections();
     }
 
     @Override
@@ -100,7 +103,7 @@ public class Reactor<T> implements Server<T> {
     private void handleAccept(ServerSocketChannel serverChan, Selector selector) throws IOException {
         SocketChannel clientChan = serverChan.accept();
         clientChan.configureBlocking(false);
-        final ConnectionHandler<T> handler = new NonBlockingConnectionHandler<>(
+        final ConnectionHandler<String>  handler = new NonBlockingConnectionHandler(
                 readerFactory.get(),
                 protocolFactory.get(),
                 clientChan,
@@ -113,7 +116,7 @@ public class Reactor<T> implements Server<T> {
 
     private void handleReadWrite(SelectionKey key) {
         @SuppressWarnings("unchecked")
-        NonBlockingConnectionHandler<T> handler = (NonBlockingConnectionHandler<T>) key.attachment();
+        NonBlockingConnectionHandler  handler = (NonBlockingConnectionHandler ) key.attachment();
 
         if (key.isReadable()) {
             Runnable task = handler.continueRead();

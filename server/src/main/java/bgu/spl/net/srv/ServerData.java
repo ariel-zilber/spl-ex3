@@ -5,23 +5,33 @@ import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
 // Helper class
+
+/***
+ * Singleton represents the server data
+ */
 public class ServerData {
     private static ServerData instance = null;
-    private Users users;
+    private final Users users;
+    private final Topics topics;
 
-    private Topics topics;
+    private final AtomicInteger numberOfMessages;
+    private final ConnectionsImpl connections;
 
-    private AtomicInteger numberOfMessages;
-    private ConnectionsImpl<String> connections;
-
+    /***
+     *
+     */
     private ServerData() {
         numberOfMessages = new AtomicInteger(0);
-        connections = new ConnectionsImpl<String>();
+        connections = new ConnectionsImpl();
         topics = new Topics();
         users = new Users();
     }
 
 
+    /***
+     *
+     * @return
+     */
     public static ServerData getInstance() {
         if (instance == null) {
             instance = new ServerData();
@@ -30,25 +40,53 @@ public class ServerData {
     }
 
     //
+
+    /***
+     *
+     * @return
+     */
     public Users getUsers() {
         return users;
     }
 
+    /***
+     *
+     * @return
+     */
     public Topics getTopics() {
         return topics;
     }
 
-    public ConnectionsImpl<String> getConnections() {
+    /***
+     *
+     * @return
+     */
+    public ConnectionsImpl getConnections() {
         return connections;
     }
 
+    /***
+     *
+     * @return
+     */
     public Integer nextMessageId() {
         return numberOfMessages.incrementAndGet();
     }
+
+    /***
+     *
+     * @param connectionId
+     * @return
+     */
     public boolean canDisconnectUser(Integer connectionId) {
         return ( users.getUserById(connectionId)!=null) ;
     }
 
+
+    /***
+     *
+     * @param connectionId
+     */
     public void disconnectUser(Integer connectionId) {
         User user = users.getUserById(connectionId);
         if (user == null) {
@@ -62,6 +100,12 @@ public class ServerData {
         users.logoutUser(connectionId);
     }
 
+    /***
+     *
+     * @param connectionId
+     * @param subscriptionID
+     * @return
+     */
     public boolean unsubscribeUser(Integer connectionId, Integer subscriptionID) {
         User user = getUsers().getUserById(connectionId);
         if (user == null) {
@@ -77,6 +121,13 @@ public class ServerData {
     }
 
 
+    /**
+     *
+     * @param topicName
+     * @param connectionId
+     * @param subscriptionID
+     * @return
+     */
     public boolean subscribeUser(String topicName, Integer connectionId, Integer subscriptionID) {
         // get the user associated with the connection
         User user = getUsers().getUserById(connectionId);
@@ -92,16 +143,25 @@ public class ServerData {
         return true;
     }
 
-
+    /**
+     *
+     * @param username
+     * @param password
+     * @param connectionId
+     * @return
+     */
     public LoginCodes loginUser(String username, String password, Integer connectionId) {
         Users users = ServerData.getInstance().getUsers();
         users.createUser(username, password);
         return users.loginUser(username, password, connectionId);
     }
 
-    public  boolean doesTopicExists(String topicName){
-        return  getTopics().getTopic(topicName)!=null;
-    }
+    /***
+     *
+     * @param topicName
+     * @param subscriptionId
+     * @return
+     */
     public boolean isSubscriptionIdAvailable(String topicName, Integer subscriptionId) {
         Topic topic = getTopics().getTopic(topicName);
         for (User user : topic.getSubscribedUsers()) {
@@ -112,6 +172,12 @@ public class ServerData {
         return true;
     }
 
+    /***
+     *  Checks wheneve a given user is registerd
+     * @param topicName
+     * @param connectionId
+     * @return
+     */
     public boolean isUserRegistered(String topicName, Integer connectionId) {
         Topic topic = getTopics().getTopic(topicName);
         for (User user : topic.getSubscribedUsers()) {

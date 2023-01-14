@@ -9,19 +9,19 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.function.Supplier;
 
-public abstract class BaseServer<T> implements Server<T> {
+public abstract class BaseServer  implements Server<String> {
 
     private final int port;
-    private final Supplier<StompMessagingProtocol<T>> protocolFactory;
-    private final Supplier<MessageEncoderDecoder<T>> encdecFactory;
+    private final Supplier<StompMessagingProtocol<String>> protocolFactory;
+    private final Supplier<MessageEncoderDecoder<String>> encdecFactory;
     private ServerSocket sock;
     private int numOfConnections;
     private ServerData serverData;
-    private  ConnectionsImpl<T> connections;
+    private  ConnectionsImpl  connections;
     public BaseServer(
             int port,
-            Supplier<StompMessagingProtocol<T>> protocolFactory,
-            Supplier<MessageEncoderDecoder<T>> encdecFactory) {
+            Supplier<StompMessagingProtocol<String>> protocolFactory,
+            Supplier<MessageEncoderDecoder<String>> encdecFactory) {
 
         this.port = port;
         this.protocolFactory = protocolFactory;
@@ -29,7 +29,7 @@ public abstract class BaseServer<T> implements Server<T> {
 		this.sock = null;
         this.serverData = ServerData.getInstance();
         this.numOfConnections = 0;
-        connections= (ConnectionsImpl<T>) serverData.getConnections();
+        connections= serverData.getConnections();
 
     }
 
@@ -45,7 +45,7 @@ public abstract class BaseServer<T> implements Server<T> {
 
                 Socket clientSock = serverSock.accept();
 
-                BlockingConnectionHandler<T> handler = new BlockingConnectionHandler<>(
+                BlockingConnectionHandler handler = new BlockingConnectionHandler(
                         clientSock,
                         encdecFactory.get(),
                         protocolFactory.get(),
@@ -68,6 +68,6 @@ public abstract class BaseServer<T> implements Server<T> {
 			sock.close();
     }
 
-    protected abstract void execute(BlockingConnectionHandler<T>  handler);
+    protected abstract void execute(BlockingConnectionHandler   handler);
 
 }

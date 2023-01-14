@@ -27,7 +27,6 @@ public class ConnectClientFrame extends Frame {
         String login = headers.get("login");
         String passcode = headers.get("passcode");
         // check whenever there are format errors
-        // todo
         if (!headers.get("accept-version").equals("1.2")) {
             ErrorServerFrame.createFrame(this, Collections.singletonList("The only accepted version is 1.2")).process(connectionId, connections, protocol);
             return;

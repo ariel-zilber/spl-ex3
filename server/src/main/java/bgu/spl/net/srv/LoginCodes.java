@@ -1,5 +1,9 @@
 package bgu.spl.net.srv;
 
+
+/****
+ * Represents login codes
+ */
 public enum LoginCodes {
     SOCKET_ERROR,
 

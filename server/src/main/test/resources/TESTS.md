@@ -16,6 +16,7 @@ report /media/ariel/k8s/spl/ex3_v2/SPL231-Assignment3-student-template-2/client/
 ```
 summary germany_japan meni events1_out.json
 ```
+
 ## TEST 2
 
 test not login at first

@@ -5,18 +5,11 @@ import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class ConnectionsImpl<T> implements Connections<T> {
-    private ConcurrentHashMap<Integer, ConnectionHandler<T>> connectionHandlers;
-
-    //
-
-    private Topics topics;
-    private Users users;
+public class ConnectionsImpl  implements Connections<String> {
+    private ConcurrentHashMap<Integer, ConnectionHandler<String>> connectionHandlers;
 
     public ConnectionsImpl() {
         connectionHandlers = new ConcurrentHashMap<>();
-        topics = new Topics();
-        users = new Users();
     }
 
 
@@ -26,7 +19,7 @@ public class ConnectionsImpl<T> implements Connections<T> {
      * @return
      */
     @Override
-    public boolean send(int connectionId, T msg) {
+    public boolean send(int connectionId, String msg) {
         if (msg == null) {
             return false;
         }
@@ -42,7 +35,7 @@ public class ConnectionsImpl<T> implements Connections<T> {
      * @param msg
      */
     @Override
-    public void send(String channel, T msg) {
+    public void send(String channel, String msg) {
         if(msg==null){
             return;
         }
@@ -57,12 +50,13 @@ public class ConnectionsImpl<T> implements Connections<T> {
         }
     }
 
-    public void addConnection(Integer connectionId, ConnectionHandler<T> handler) {
+    /***
+     *
+     * @param connectionId
+     * @param handler
+     */
+    public void addConnection(Integer connectionId, ConnectionHandler<String> handler) {
         connectionHandlers.put(connectionId, handler);
-    }
-
-    public ConnectionHandler<T> getConnection(int connectionId) {
-        return connectionHandlers.get(connectionId);
     }
 
     /**
@@ -71,7 +65,7 @@ public class ConnectionsImpl<T> implements Connections<T> {
     @Override
     public void disconnect(int connectionId) {
         try {
-            ConnectionHandler<T> handler = connectionHandlers.get(connectionId);
+            ConnectionHandler<String> handler = connectionHandlers.get(connectionId);
             handler.close();
         } catch (IOException e) {
             System.out.println("Conception close failed :" + e.getMessage());

@@ -5,7 +5,6 @@
 #include <sstream>
 #include "StompServerHandler.h"
 #include "string.h"
-// todo:: change it
 
 StompServerHandler::StompServerHandler(ConnectionHandler &connectionHandler, UserData &userData) : connectionHandler(
         &connectionHandler), userData(&userData) {}
@@ -82,7 +81,6 @@ void StompServerHandler::handleConnectedFrame() {
 }
 
 void StompServerHandler::handleReceiptFrame(std::string receiptId) {
-    // todo
     if (receiptId == userData->getReceiptIdToDisconnect()) {
         connectionHandler->close();
         userData->logout();

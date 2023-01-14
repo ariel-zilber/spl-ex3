@@ -13,22 +13,26 @@ import java.nio.channels.SocketChannel;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-public class NonBlockingConnectionHandler<T> implements ConnectionHandler<T> {
+public class NonBlockingConnectionHandler implements ConnectionHandler<String> {
 
     private static final int BUFFER_ALLOCATION_SIZE = 1 << 13; //8k
     private static final ConcurrentLinkedQueue<ByteBuffer> BUFFER_POOL = new ConcurrentLinkedQueue<>();
 
-    private final StompMessagingProtocol<T> protocol;
-    private final MessageEncoderDecoder<T>  encdec;
+    private final StompMessagingProtocol<String> protocol;
+    private final MessageEncoderDecoder<String>  encdec;
     private final Queue<ByteBuffer> writeQueue = new ConcurrentLinkedQueue<>();
     private final SocketChannel chan;
     private final Reactor reactor;
 
-    private Connections<T> connections;
+    private Connections<String> connections;
     private int connectionHandlerId;
 
-    public NonBlockingConnectionHandler(MessageEncoderDecoder<T> reader, StompMessagingProtocol<T>  protocol, SocketChannel chan,
-                                        Reactor<T> reactor, Connections<T> connections, int connectionHandlerId) {
+    public NonBlockingConnectionHandler(MessageEncoderDecoder<String> reader,
+                                        StompMessagingProtocol<String>  protocol,
+                                        SocketChannel chan,
+                                        Reactor  reactor,
+                                        Connections<String> connections,
+                                        int connectionHandlerId) {
         this.chan = chan;
         this.encdec = reader;
         this.protocol = protocol;
@@ -53,7 +57,7 @@ public class NonBlockingConnectionHandler<T> implements ConnectionHandler<T> {
             return () -> {
                 try {
                     while (buf.hasRemaining()) {
-                        T nextMessage =   encdec.decodeNextByte(buf.get());
+                        String nextMessage =   encdec.decodeNextByte(buf.get());
                         if (nextMessage != null) {
                             protocol.process(nextMessage);
                         }
@@ -122,7 +126,7 @@ public class NonBlockingConnectionHandler<T> implements ConnectionHandler<T> {
     }
 
     @Override
-    public void send(T msg) {
+    public void send(String  msg) {
         if (msg != null) {
             writeQueue.add(ByteBuffer.wrap(encdec.encode(msg)));
             reactor.updateInterestedOps(chan, SelectionKey.OP_READ | SelectionKey.OP_WRITE);

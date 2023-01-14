@@ -8,18 +8,22 @@ import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 
-public class BlockingConnectionHandler<T> implements Runnable, ConnectionHandler<T> {
+public class BlockingConnectionHandler  implements Runnable, ConnectionHandler<String> {
 
-    private final StompMessagingProtocol<T> protocol;
-    private final MessageEncoderDecoder<T>  encdec;
+    private final StompMessagingProtocol<String> protocol;
+    private final MessageEncoderDecoder<String>  encdec;
     private final Socket sock;
     private BufferedInputStream in;
     private BufferedOutputStream out;
     private volatile boolean connected = true;
-    private Connections<T> connections;
+    private Connections<String> connections;
     private int connectionHandlerId;
 
-    public BlockingConnectionHandler(Socket sock, MessageEncoderDecoder<T>  reader, StompMessagingProtocol<T> protocol,Connections<T> connections, int connectionHandlerId ) {
+    public BlockingConnectionHandler(Socket sock,
+                                     MessageEncoderDecoder<String>  reader,
+                                     StompMessagingProtocol<String> protocol,
+                                     Connections<String> connections,
+                                     int connectionHandlerId ) {
         this.sock = sock;
         this.encdec = reader;
         this.protocol = protocol;
@@ -37,7 +41,7 @@ public class BlockingConnectionHandler<T> implements Runnable, ConnectionHandler
             protocol.start(connectionHandlerId,connections);
 
             while (!protocol.shouldTerminate() && connected && (read = in.read()) >= 0) {
-                T nextMessage = encdec.decodeNextByte((byte) read);
+                String nextMessage = encdec.decodeNextByte((byte) read);
 
                 if (nextMessage != null) {
                     protocol.process(nextMessage);
@@ -58,7 +62,7 @@ public class BlockingConnectionHandler<T> implements Runnable, ConnectionHandler
     }
 
     @Override
-    public void send(T msg) {
+    public void send(String msg) {
         if (msg != null){
             try {
                 out.write(encdec.encode(msg));
