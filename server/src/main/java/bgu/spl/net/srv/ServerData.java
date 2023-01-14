@@ -45,20 +45,21 @@ public class ServerData {
     public Integer nextMessageId() {
         return numberOfMessages.incrementAndGet();
     }
+    public boolean canDisconnectUser(Integer connectionId) {
+        return ( users.getUserById(connectionId)!=null) ;
+    }
 
-    public boolean disconnectUser(Integer connectionId) {
+    public void disconnectUser(Integer connectionId) {
         User user = users.getUserById(connectionId);
         if (user == null) {
-            return false;
+            return  ;
         }
         // remove the user from all topics
         for (String topicName : user.getAllTopicNames()) {
             topics.getTopic(topicName).removeUser(user);
         }
-
         //  logout the user
         users.logoutUser(connectionId);
-        return true;
     }
 
     public boolean unsubscribeUser(Integer connectionId, Integer subscriptionID) {

@@ -26,6 +26,8 @@ public class StompMessagingProtocolImp  implements  StompMessagingProtocol<Strin
             message=message.substring(1);
         }
         if(Frame.validFrame(message)){
+            System.out.println("Frame is valid!!!");
+
             Frame frame=new ClientFrameFactory().getFrame(message);
             frame.process(connectionId,connections,this);
         }else{

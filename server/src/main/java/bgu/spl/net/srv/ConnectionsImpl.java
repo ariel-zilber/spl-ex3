@@ -30,7 +30,7 @@ public class ConnectionsImpl<T> implements Connections<T> {
         System.out.println("[Connection] connectionId:"+connectionId);
         System.out.println("[Connection] msg:------");
         System.out.println(msg);
-        System.out.println("[Connection] msg:------");
+        System.out.println("[Connection] end:------");
         if (msg == null) {
             return false;
         }

@@ -8,7 +8,17 @@
 /// constructors ::::::::::::::::::::::
 
 UserData::UserData(): username(),password(),topics(),topicNameToSubscriptionID(),receiptIdToTopic(),receiptIdToCommand(),usernameToGameSummary(),loggedIn(false),reciptIdCounter(1),loginLock(true),logOutLock(false),receiptIdToDisconnect("-1"){};
-UserData::~UserData(){}
+UserData::~UserData(){
+    
+ // usernameToGameSummary
+  for(auto iterator= usernameToGameSummary.begin();iterator!=usernameToGameSummary.end();iterator++){
+    if (iterator->second!=nullptr){
+        delete iterator->second;
+        iterator->second=nullptr;
+    };
+  }
+
+}
 
 
 /// getters ::::::::::::::::::::::
@@ -20,14 +30,17 @@ std::unordered_map<std::string, std::string> & UserData::getReceiptIdToCommand()
 
 int UserData::nextSubscriptionId(){
     int  ms = std::time(nullptr);
-    std::cout << ms << " seconds since the Epoch\n";
+    std::cout << ms << "nextSubscriptionId  \n";
     
     return ms;
 };
 
 int UserData::nextReciptId(){
-    reciptIdCounter++;
-    return reciptIdCounter;
+        int  ms = std::time(nullptr);
+    std::cout << ms << "nextReciptId  \n";
+    
+    return ms;
+
 };
 
 bool UserData::isSubscribed(std::string topic) {
@@ -93,6 +106,8 @@ void UserData::addReciptIdToCommand(std::string receiptId, std::string command){
 std::string  UserData::getCommandByReceiptId(std::string receiptId){
     return receiptIdToCommand.at(receiptId);
 };
+ 
+
 
 
 /// setters ::::::::::::::::::::::

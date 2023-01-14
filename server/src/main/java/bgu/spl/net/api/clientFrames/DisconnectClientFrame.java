@@ -21,13 +21,11 @@ public class DisconnectClientFrame extends Frame {
     @Override
     public void process(Integer connectionId, Connections<String> connections, StompMessagingProtocolImp protocol) {
         Map<String, String> headers = this.getHeaders();
+        if(ServerData.getInstance().canDisconnectUser(connectionId)){
+            ReceiptServerFrame.createFrame(headers.get("receipt")).process(connectionId, connections, protocol);
+            ServerData.getInstance().disconnectUser(connectionId);
+            protocol.terminate();
 
-        boolean success = ServerData.getInstance().disconnectUser(connectionId);
-        if (success) {
-            if(headers.get("receipt")!=null){
-                ReceiptServerFrame.createFrame(headers.get("receipt")).process(connectionId, connections, protocol);
-
-            }
         } else {
             ErrorServerFrame.createFrame(this, Collections.singletonList("Cannot disconnecte unless connected already!")).process(connectionId, connections, protocol);
         }

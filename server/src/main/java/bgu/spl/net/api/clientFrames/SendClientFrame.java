@@ -34,7 +34,6 @@ public class SendClientFrame extends Frame {
             return;
         }
 
-        topicName=topicName.replace("/","");
         if(! ServerData.getInstance().getTopics().topicExists(topicName)){
             ErrorServerFrame.createFrame(this, Collections.singletonList("Client cannot send message if not subscribed to destination")).process(connectionId, connections, protocol);
             return;

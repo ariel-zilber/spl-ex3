@@ -10,6 +10,7 @@ public class ClientFrameFactory {
         String  command=message.substring(0,message.indexOf("\n"));
         switch (command){
             case "CONNECT":
+            case "STOMP":
                return  new ConnectClientFrame(message);
             case "SEND":
                 return new SendClientFrame(message);

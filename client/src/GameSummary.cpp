@@ -93,7 +93,7 @@ std::string GameSummary::getTeamBStats(std::string gameName){
     std::string output="";
     for(int i=0; i<(int) events.size();i++){
         output+=std::to_string(events[i].get_time())+" - "+events[i].get_name()+":\n\n";
-        output+=events[i].get_discription()+"\n\n";
+        output+=events[i].get_discription()+"\n\n\n";
     }
     return output;
  }

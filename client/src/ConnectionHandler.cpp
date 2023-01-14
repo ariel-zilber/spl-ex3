@@ -17,7 +17,7 @@ ConnectionHandler::~ConnectionHandler() {
 bool ConnectionHandler::connect(std::string host, short port) {
     host_ = host;
     port_ = port;
-    std::cout << "Starting connect to " 
+    std::cout << "stomp$ Starting connect to " 
         << host_ << ":" << port_ << std::endl;
     try {
 		tcp::endpoint endpoint(boost::asio::ip::address::from_string(host_), port_); // the server endpoint
@@ -28,7 +28,6 @@ bool ConnectionHandler::connect(std::string host, short port) {
 
     }
     catch (std::exception& e) {
-        std::cerr << "Connection failed (Error: " << e.what() << ')' << std::endl;
         return false;
     }
     connected = true;
@@ -48,7 +47,6 @@ bool ConnectionHandler::getBytes(char bytes[], unsigned int bytesToRead) {
 		if(error)
 			throw boost::system::system_error(error);
     } catch (std::exception& e) {
-        std::cerr << "recv failed (Error: " << e.what() << ')' << std::endl;
         return false;
     }
     return true;
@@ -96,7 +94,7 @@ bool ConnectionHandler::getFrameAscii(std::string& frame, char delimiter) {
 			frame.append(1, ch);
 	}while (delimiter != ch);
     } catch (std::exception& e) {
-	std::cerr << "recv failed2 (Error: " << e.what() << ')' << std::endl;
+	std::cerr << "stomp$ recv failed2 (Error: " << e.what() << ')' << std::endl;
 	return false;
     }
     return true;

@@ -26,6 +26,7 @@ public class ConnectClientFrame extends Frame {
         Map<String, String> headers = this.getHeaders();
         String login = headers.get("login");
         String passcode = headers.get("passcode");
+       System.out.println("[ConnectClientFrame] login:"+login+" passcode:"+passcode+" accept-version:"+headers.get("accept-version")+" host:"+headers.get("host"));
         // check whenever there are format errors
         // todo
         if (!headers.get("accept-version").equals("1.2")) {
@@ -36,11 +37,11 @@ public class ConnectClientFrame extends Frame {
             ErrorServerFrame.createFrame(this, Collections.singletonList("Must contain hostname")).process(connectionId, connections, protocol);
             return;
         }
-
-        if (!headers.get("host").equals("stomp.cs.bgu.ac.il")) {
-            ErrorServerFrame.createFrame(this, Collections.singletonList("The hostname must be stomp.cs.bgu.ac.il")).process(connectionId, connections, protocol);
-            return;
-        }
+//
+//        if (!headers.get("host").equals("stomp.cs.bgu.ac.il")) {
+//            ErrorServerFrame.createFrame(this, Collections.singletonList("The hostname must be stomp.cs.bgu.ac.il")).process(connectionId, connections, protocol);
+//            return;
+//        }
 
         if (login == null) {
             ErrorServerFrame.createFrame(this, Collections.singletonList("Login username was not provided")).process(connectionId, connections, protocol);
@@ -53,7 +54,7 @@ public class ConnectClientFrame extends Frame {
 
         // attempt login
         LoginCodes loginCodes = ServerData.getInstance().loginUser(login, passcode, connectionId);
-        System.out.println("[ConnectClientFrame] ");
+        System.out.println("[ConnectClientFrame] [loginCodes] "+loginCodes);
 
         // respond accordingly
         switch (loginCodes) {

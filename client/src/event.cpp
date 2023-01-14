@@ -98,9 +98,33 @@ void updateMap(std::map<std::string, std::string> &myMap,std::vector<std::string
     }
 }
 
+std::string trimSpaces(std::string inputString){
+    int notSpaceIndex=(int)inputString.size();
+    for(int i=0;i<(int)inputString.size();i++){
+        if(inputString[i]!=' '){
+            notSpaceIndex=i;
+            break;
+        }
+    }
+    return inputString.substr(notSpaceIndex,(int)inputString.size());
+}
+
+std::vector<std::string> trimSpacesFromRows(std::vector<std::string>lines){
+    
+    std::vector<std::string>  output;
+    for(int i=0;i<(int)lines.size();i++){
+        std::string fixedLine=lines[i];
+        if(lines[i].find(':')<lines[i].length()){ 
+          fixedLine=trimSpaces(getKeyFromPairSring(lines[i]))+":"+trimSpaces(getValueFromPairSring(lines[i]));
+        }
+        output.push_back(fixedLine);
+    }
+    return output;
+}
+
 Event::Event(const std::string &frame_body) : team_a_name(""), team_b_name(""), name(""), time(0), game_updates(), team_a_updates(), team_b_updates(), description("")
 {
-    std::vector<std::string>results=readLine( frame_body);
+    std::vector<std::string>results=trimSpacesFromRows(readLine( frame_body));
     team_a_name=getValueFromPairSring(results[1]);
     team_b_name=getValueFromPairSring(results[2]);
     name=getValueFromPairSring(results[3]);
@@ -118,8 +142,8 @@ Event::Event(const std::string &frame_body) : team_a_name(""), team_b_name(""), 
     updateMap(team_b_updates,results,teamAContentEnd+1,teamBContentEnd);
      
      // update description field
-    if(teamBContentEnd<(int)results.size()){
-        description=results[teamBContentEnd];
+    if(teamBContentEnd+1<(int)results.size()){
+        description=results[teamBContentEnd+1];
     }
     
 

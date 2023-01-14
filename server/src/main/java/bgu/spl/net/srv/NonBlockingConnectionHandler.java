@@ -33,8 +33,10 @@ public class NonBlockingConnectionHandler<T> implements ConnectionHandler<T> {
         this.encdec = reader;
         this.protocol = protocol;
         this.reactor = reactor;
-        //
+        this.connections=connections;
+        this.connectionHandlerId=connectionHandlerId;
         this.protocol.start(connectionHandlerId,connections);
+        System.out.println("[NonBlockingConnectionHandler] id:"+connectionHandlerId);
     }
 
     public Runnable continueRead() {

@@ -1,10 +1,7 @@
 package bgu.spl.net.impl.stomp;
 
 import bgu.spl.net.api.StompMessageEncoderDecoder;
-import bgu.spl.net.api.StompMessagingProtocol;
 import bgu.spl.net.api.StompMessagingProtocolImp;
-import bgu.spl.net.impl.echo.EchoProtocol;
-import bgu.spl.net.impl.echo.LineMessageEncoderDecoder;
 import bgu.spl.net.srv.Server;
 
 public class StompServer {
@@ -29,9 +26,8 @@ public class StompServer {
     }
 
     public static void main(String[] args) {
-        runThreadPerClient(7777);
-
-//        // TODO:: ??
+        runReactor(7777);
+        // TODO:: ??
 //        if(args.length==2){
 //            int port=Integer.parseInt(args[0]);
 //            String serverType=args[1];

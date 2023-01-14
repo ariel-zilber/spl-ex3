@@ -30,7 +30,7 @@ public class ReceiptServerFrame  extends Frame {
 
     public static Frame createFrame(String receiptId){
         Map<String,String> header=new HashMap<>();
-        header.put("receipt-Id",receiptId);
+        header.put("receipt-id",receiptId);
         return new ReceiptServerFrame(header,new ArrayList<>());
     }
 }
